@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <h2>Login</h2>
+    <form id="loginForm">
+        <label for="username">Email:</label>
+        <input type="email" id="username" name="username" required>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <button type="submit">Login</button>
+    </form>
+    <p id="error" style="color: red;"></p>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const data = new URLSearchParams();
+            data.append('grant_type', '');
+            data.append('username', username);
+            data.append('password', password);
+            data.append('scope', '');
+            data.append('client_id', '');
+            data.append('client_secret', '');
+
+            fetch('http://127.0.0.1:8000/access/token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'accept': 'application/json'
+                },
+                body: data
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.access_token) {
+                    console.log(data.access_token);
+                    // Guardar el token en localStorage
+                    localStorage.setItem('token', data.access_token);
+                    // Redirigir a la página protegida
+                    window.location.href = 'dashboard.html';
+                } else {
+                    document.getElementById('error').textContent = 'Error: ' + (data.detail || 'Datos Invalidos');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('error').textContent = 'Error: ' + error.message;
+            });
+        });
+    </script>
+</body>
+</html>
