@@ -3,9 +3,10 @@ __pycache__/
 
 .env
 
+mysql://root:QKucnNpfapaFVgBlCywgaAevCwFjTkTx@roundhouse.proxy.rlwy.net:15880/railway
 
-git init
-git add .
-git commit -m "primer commit"
-git remote add origin https://github.com/DiegoEduk/PersonalFinances.git
-git push -u origin master
+# git init
+# git add .
+# git commit -m "primer commit"
+# git remote add origin https://github.com/DiegoEduk/PersonalFinances.git
+# git push -u origin master

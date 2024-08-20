@@ -82,13 +82,6 @@ VALUES('Salario','Mi salario mensual en mi trabajo');
 INSERT INTO category(category_name,category_description)
 VALUES('Arriendo','Pago por servicios de arriendo');
 
-
-app.include_router(users.router, prefix="/users", tags=["users"])
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Permitir solicitudes desde cualquier origen
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE"],  # Permitir estos métodos HTTP
-    allow_headers=["*"],  # Permitir cualquier encabezado en las solicitudes
-)
+INSERT INTO users (user_id, full_name, mail, passhash, user_role, user_status, created_at, updated_at) VALUES
+('rVAzYfbbeGLVmAE9lyY9i4U02YTxPW', 'Christian Arias ', 'arias@gmail.com', '$2b$12$M6lpSVYUIbtnfuyx7RS3ZO7uzG1QvkIvnmuQUXkHF42dsVuKldYcu', 'SuperAdmin', 1, '2024-08-13 21:28:41', '2024-08-13 16:28:41'),
+('XmDFJkhab26C1V0fmBekhodnmhcGcQ', 'Juanito Alimaña', 'juanito@3xample.com', '$2b$12$vHJ5ydFXJEgf/W25o0M.de7U9i1oWaYisKkJt92g/wYiJ4Qu7JQfq', 'Cliente', 1, '2024-08-20 02:45:22', '2024-08-19 21:45:22');
