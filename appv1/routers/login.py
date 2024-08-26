@@ -56,7 +56,7 @@ async def login_for_access_token(
             mail=user.mail,
             user_role=user.user_role
         ),
-        token=access_token
+        access_token=access_token
     )
 
         
