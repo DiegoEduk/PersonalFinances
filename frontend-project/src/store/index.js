@@ -1,12 +1,11 @@
-// src/store/index.js
 import { defineStore } from 'pinia';
 import { login } from '@/services/authService'; // Importa el servicio de autenticación
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: null,
-    permissions: [],
-    accessToken: null,
+    user: JSON.parse(localStorage.getItem('user')) || null,
+    permissions: JSON.parse(localStorage.getItem('permissions')) || [],
+    accessToken: localStorage.getItem('access_token') || null,
     authError: null,
   }),
   actions: {
@@ -19,6 +18,9 @@ export const useAuthStore = defineStore('auth', {
         this.accessToken = response.data.access_token;
         this.authError = null;
 
+        // Guardar datos en localStorage
+        localStorage.setItem('user', JSON.stringify(this.user));
+        localStorage.setItem('permissions', JSON.stringify(this.permissions));
         localStorage.setItem('access_token', this.accessToken);
       } catch (error) {
         if (error.response && error.response.status === 401) {
@@ -34,6 +36,10 @@ export const useAuthStore = defineStore('auth', {
       this.permissions = [];
       this.accessToken = null;
       this.authError = null;
+
+      // Remover datos de localStorage
+      localStorage.removeItem('user');
+      localStorage.removeItem('permissions');
       localStorage.removeItem('access_token');
     }
   }
