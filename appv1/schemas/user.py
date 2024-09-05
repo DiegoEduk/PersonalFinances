@@ -40,7 +40,13 @@ class ResponseLoggin(BaseModel):
     permissions: List[PermissionsRol]
     access_token: str
 
+
+class VerifyCode(BaseModel):
+    email: str
+    code: str
+
+class ChangePassword(BaseModel):
+    email: str
+    new_password: str
+    code: str
     
-   # token api mailsend
-   # mlsn.4b0e930b61ef65f5cb7ecf27123c0a30ca9c02b185b3c31e97596a5a67feff0e
-   # mlsn.1c6857b7db7c6cb3155af4607e0ccae43c62007dddd3bc2fec2d90c86fd126f8

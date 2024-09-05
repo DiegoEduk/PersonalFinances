@@ -109,6 +109,24 @@ def update_user(db: Session, user_id: str, user: UserUpdate):
         print(f"Error al actualizar usuario: {e}")
         raise HTTPException(status_code=500, detail="Error al actualizar usuario")
 
+def update_password(db: Session, email: str, new_password: str):
+    try:
+        # Hash el nuevo password
+        hashed_password = get_hashed_password(new_password)
+        # Actualizar el nuevo password en base de datos
+        sql_query = text("UPDATE users SET passhash = :passhash WHERE mail = :mail")
+        params = { "passhash": hashed_password, "mail": email }
+        # Ejecutar la consulta de actualización
+        db.execute(sql_query, params)
+        # Confirmar los cambios
+        db.commit()
+        return True
+
+    except SQLAlchemyError as e:
+        db.rollback()  # Deshacer los cambios si ocurre un error
+        print(f"Error al actualizar password: {e}")
+        raise HTTPException(status_code=500, detail="Error al actualizar password")
+
 def get_all_users_paginated(db: Session, page: int = 1, page_size: int = 10):
     try:
         # Calcular el offset basado en el número de página y el tamaño de página

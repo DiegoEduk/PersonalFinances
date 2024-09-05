@@ -165,27 +165,24 @@
             <li class="nav-item dropdown no-arrow">
                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                     aria-haspopup="true" aria-expanded="false">
-                    <span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
-                    <img class="img-profile rounded-circle" src="">
+                    <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ user?.full_name }}</span>
+                    <i class="fa-regular fa-user"></i>
+                    <button class="btn btn-link" @click="logout"><i class="fa-solid fa-power-off"></i></button>
                 </a>
                 <!-- Dropdown - User Information -->
                 <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                    <a class="dropdown-item" href="#">
+                    <router-link class="dropdown-item" to="/edit-profile">
                         <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                        Profile
-                    </a>
+                        Perfil de Usuario
+                    </router-link>
                     <a class="dropdown-item" href="#">
                         <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                        Settings
-                    </a>
-                    <a class="dropdown-item" href="#">
-                        <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                        Activity Log
+                        Cambiar Contraseña
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
                         <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                        Logout
+                        Cerrar Sesión
                     </a>
                 </div>
             </li>
@@ -195,3 +192,36 @@
     </nav>
     <!-- End of Topbar -->
 </template>
+
+<script>
+import { ref } from 'vue';
+import { useAuthStore } from '@/store'; // Importa el store de autenticación
+import { useRouter } from 'vue-router'; // Importa Vue Router para la redirección
+
+export default {
+    setup() {
+        const authStore = useAuthStore(); // Obtén la instancia del store
+        const router = useRouter(); // Obtén la instancia del router
+
+        // Propiedades para acceder a los datos del store
+        const user = ref(authStore.user);
+        const permissions = authStore.permissions;
+
+        // Acción para cerrar sesión
+        const logout = () => {
+            authStore.logout(); // Llama a la acción de logout del store
+            router.push('/'); // Redirige a la ruta raíz
+        };
+
+        return {
+            user,
+            permissions,
+            logout
+        };
+    }
+};
+</script>
+
+<style>
+/* Agrega estilos según sea necesario */
+</style>

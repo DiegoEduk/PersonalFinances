@@ -8,18 +8,13 @@ export const createUser = async (fullName, email, userRole, passhash) => {
       mail: email,
       user_role: userRole,
       passhash: passhash
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('access_token')}` // Incluye el token de autenticación
-      }
     });
     return response;
   } catch (error) {
     if (error.response) {
-      throw error; // Lanza el error para que lo maneje el store
+      throw error.response; // Devuelve el error original de la API
     } else {
-      throw new Error('Error de red o de servidor'); // Manejar errores de red
+      throw new Error('Error de red o de servidor');
     }
   }
 };
@@ -27,15 +22,11 @@ export const createUser = async (fullName, email, userRole, passhash) => {
 // Función para obtener un usuario por su email
 export const getUserByEmail = async (email) => {
   try {
-    const response = await api.get(`/users/get-user-by-email/?email=${encodeURIComponent(email)}`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('access_token')}` // Incluye el token de autenticación
-      }
-    });
+    const response = await api.get(`/users/get-user-by-email/?email=${encodeURIComponent(email)}`);
     return response;
   } catch (error) {
     if (error.response) {
-      throw error; // Lanza el error para que lo maneje el store
+      throw error.response; // Devuelve el error original de la API
     } else {
       throw new Error('Error de red o de servidor'); // Manejar errores de red
     }
@@ -45,17 +36,13 @@ export const getUserByEmail = async (email) => {
 // Función para obtener todos los usuarios con paginación
 export const getUsersByPage = async (page = 1, pageSize = 10) => {
   try {
-    const response = await api.get(`/users/users-by-page/?page=${page}&page_size=${pageSize}`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('access_token')}` // Incluye el token de autenticación
-      }
-    });
+    const response = await api.get(`/users/users-by-page/?page=${page}&page_size=${pageSize}`);
     return response;
   } catch (error) {
     if (error.response) {
-      throw error; // Lanza el error para que lo maneje el store
+      throw error.response; // Devuelve el error original de la API
     } else {
-      throw new Error('Error de red o de servidor'); // Manejar errores de red
+      throw new Error('Error de red o de servidor');
     }
   }
 };
@@ -68,16 +55,11 @@ export const updateUser = async (userId, fullName, email, userRole, userStatus) 
       mail: email,
       user_role: userRole,
       user_status: userStatus
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('access_token')}` // Incluye el token de autenticación
-      }
     });
     return response;
   } catch (error) {
     if (error.response) {
-      throw error; // Lanza el error para que lo maneje el store
+      throw error.response; // Devuelve el error original de la API
     } else {
       throw new Error('Error de red o de servidor'); // Manejar errores de red
     }
@@ -87,15 +69,11 @@ export const updateUser = async (userId, fullName, email, userRole, userStatus) 
 // Función para eliminar un usuario
 export const deleteUser = async (userId) => {
   try {
-    const response = await api.delete(`/users/delete/${userId}`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('access_token')}` // Incluye el token de autenticación
-      }
-    });
+    const response = await api.delete(`/users/delete/${userId}`);
     return response;
   } catch (error) {
     if (error.response) {
-      throw error; // Lanza el error para que lo maneje el store
+      throw error.response; // Devuelve el error original de la API
     } else {
       throw new Error('Error de red o de servidor'); // Manejar errores de red
     }

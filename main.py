@@ -1,13 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from appv1.routers import users
 from appv1.schemas.user import UserCreate
 from db.database import test_db_connection
-from appv1.routers import login, users, users2
+from appv1.routers import login, users, roles
 
 app = FastAPI()
 # Incluir en el objeto app los routers
-app.include_router(users2.router, prefix="/users", tags=["users"])
+app.include_router(users.router, prefix="/users", tags=["users"])
 app.include_router(login.router, prefix="/access", tags=["access"])
+app.include_router(roles.router, prefix="/role", tags=["role"])
 
 # Configuración de CORS para permitir todas las solicitudes desde cualquier origen
 app.add_middleware(

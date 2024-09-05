@@ -6,6 +6,12 @@
         <p><strong>Email:</strong> {{ user?.mail }}</p>
         <p><strong>Rol:</strong> {{ user?.user_role }}</p>
         <button @click="logout">Cerrar sesión</button>
+        <div v-for="permission in permissions" :key="permission.module_name">
+            <!-- Muestra el nombre del módulo y su valor p_select -->
+            <p>{{ permission.module_name }}: {{ permission.p_select }}</p>
+
+
+        </div>
     </div>
 </template>
 
@@ -18,7 +24,7 @@ export default {
         const authStore = useAuthStore(); // Obtén la instancia del store
         const router = useRouter(); // Obtén la instancia del router
 
-        // Variables para acceder a los datos del store
+        // Propiedades para acceder a los datos del store
         const user = authStore.user;
         const permissions = authStore.permissions;
 

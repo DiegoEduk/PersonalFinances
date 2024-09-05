@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useAuthStore } from '@/store'; // Importa el store de Pinia
+import router from '@/router'; // Importa el router de Vue
 
 // Crear una instancia de Axios
 const api = axios.create({
@@ -25,13 +26,17 @@ api.interceptors.request.use(config => {
 
 // Interceptor para manejar errores
 api.interceptors.response.use(response => {
-    return response;
-  }, error => {
-    if (error.response && error.response.status === 401 && error.response.data.detail === "Invalid token") {
-        // Redirigir a la página de login
-        router.push('/'); // Asegúrate de que el router esté correctamente configurado
-    }
-    return Promise.reject(error);
+  return response;
+}, error => {
+  if (error.response && error.response.status === 401 && error.response.data.detail === 'Invalid token') {
+    // Elimina el token y los datos de usuario del store
+    const authStore = useAuthStore();
+    authStore.logout();
+    // Redirigir a la página de login
+    router.push('/'); 
+  }
+  return Promise.reject(error);
 });
+
 
 export default api;
