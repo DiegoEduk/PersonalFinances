@@ -217,6 +217,7 @@ export default {
         // Para Manejar los errores de manera centralizada en este componente
         handleError(error) {
             // Si el BackEnd responde error
+            console.log('Error:', error.response);
             if (error.response && error.response.data && error.response.data.detail) {
                 alert(error.response.data.detail); // Muestra el mensaje de error
             } else {
