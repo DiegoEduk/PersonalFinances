@@ -126,7 +126,11 @@ export default {
                 this.users = response.data.users; // Asigna los usuarios obtenidos
                 this.totalPages = response.data.total_pages; // Asigna el total de páginas
             } catch (error) {
+<<<<<<< HEAD
                 this.handleError(error);
+=======
+                console.log(error);
+>>>>>>> b95202f ( corrección editUser)
             }
         },
 
@@ -167,7 +171,11 @@ export default {
                     this.fetchUsers(); // Refresca la lista de usuarios después de eliminar
                 } catch (error) {
                     // Maneja el error utilizando un método auxiliar
+<<<<<<< HEAD
                     this.handleError(error);
+=======
+                    alert(error.data.detail);
+>>>>>>> b95202f ( corrección editUser)
                 }
             }
         },
@@ -197,7 +205,11 @@ export default {
                 $('#userModal').modal('hide'); // Cierra el modal
             } catch (error) {
                 // Maneja el error utilizando un método auxiliar
+<<<<<<< HEAD
                 this.handleError(error);
+=======
+                alert(error.data.detail);
+>>>>>>> b95202f ( corrección editUser)
             }
         },
 
@@ -210,6 +222,7 @@ export default {
                 $('#userModal').modal('hide'); // Cierra el modal
             } catch (error) {
                 // Maneja el error utilizando un método auxiliar
+<<<<<<< HEAD
                 this.handleError(error);
             }
         },
@@ -223,6 +236,9 @@ export default {
             } else {
                 // Si es otro error, muestra un mensaje genérico si no hay detalle del error
                 alert('Ocurrió un problema inesperado. Estamos trabajando para solucionarlo. Por favor, inténtalo más tarde.');
+=======
+                alert(error.data.detail);
+>>>>>>> b95202f ( corrección editUser)
             }
         },
 
