@@ -87,8 +87,7 @@
                 <input type="email" id="userEmail" class="form-control" v-model="currentUser.mail" required>
               </div>
               <div class="mb-3">
-                <label for="userRole" class="form-label">Rol</label>
-                <input type="text" id="userRole" class="form-control" v-model="currentUser.user_role" required>
+                <RolesSelect :selectedRole="currentUser.user_role" @role-selected="updateUserRole" />
               </div>
               <!-- Campo para la contraseña, v-if hace que solo se muestra en el modo de crear usuario  -->
               <div class="mb-3" v-if="!isEditMode">
@@ -107,6 +106,7 @@
 <script>
 // Importar los metodos del archivo /services/userService para hacer pediticones a la API
 import { getUsersByPage, deleteUser, updateUser, createUser } from '@/services/userService';
+import RolesSelect from '../Roles/RolesSelect.vue';
 
 export default {
     data() {
@@ -118,6 +118,9 @@ export default {
             isEditMode: false,  // Indica si estamos en modo edición o creación
         }
     },
+    components: {
+        RolesSelect, // Registra el componente
+    },
     methods: {
         // Obtiene los usuarios de la página actual
         async fetchUsers() {
@@ -126,11 +129,8 @@ export default {
                 this.users = response.data.users; // Asigna los usuarios obtenidos
                 this.totalPages = response.data.total_pages; // Asigna el total de páginas
             } catch (error) {
-<<<<<<< HEAD
-                this.handleError(error);
-=======
-                console.log(error);
->>>>>>> b95202f ( corrección editUser)
+                // Imprime el error 
+                alert(error.data.detail);
             }
         },
 
@@ -170,12 +170,8 @@ export default {
                     alert('Usuario eliminado exitosamente');
                     this.fetchUsers(); // Refresca la lista de usuarios después de eliminar
                 } catch (error) {
-                    // Maneja el error utilizando un método auxiliar
-<<<<<<< HEAD
-                    this.handleError(error);
-=======
+                    // Imprime el error 
                     alert(error.data.detail);
->>>>>>> b95202f ( corrección editUser)
                 }
             }
         },
@@ -195,6 +191,11 @@ export default {
             $('#userModal').modal('show'); // Abre el modal
         },
 
+        // Actualizamos el rol seleccionado en `currentUser`
+        updateUserRole(selectedRole) {
+            this.currentUser.user_role = selectedRole; 
+        },
+
         // Registra un nuevo usuario llamando a la API
         async registerUser() {
             try {
@@ -204,12 +205,8 @@ export default {
                 this.fetchUsers(); // Refresca la lista de usuarios después de registrar
                 $('#userModal').modal('hide'); // Cierra el modal
             } catch (error) {
-                // Maneja el error utilizando un método auxiliar
-<<<<<<< HEAD
-                this.handleError(error);
-=======
+                // Imprime el error 
                 alert(error.data.detail);
->>>>>>> b95202f ( corrección editUser)
             }
         },
 
@@ -221,24 +218,8 @@ export default {
                 this.fetchUsers(); // Refresca la lista de usuarios después de actualizar
                 $('#userModal').modal('hide'); // Cierra el modal
             } catch (error) {
-                // Maneja el error utilizando un método auxiliar
-<<<<<<< HEAD
-                this.handleError(error);
-            }
-        },
-
-        // Para Manejar los errores de manera centralizada en este componente
-        handleError(error) {
-            // Si el BackEnd responde error
-            console.log('Error:', error.response);
-            if (error.response && error.response.data && error.response.data.detail) {
-                alert(error.response.data.detail); // Muestra el mensaje de error
-            } else {
-                // Si es otro error, muestra un mensaje genérico si no hay detalle del error
-                alert('Ocurrió un problema inesperado. Estamos trabajando para solucionarlo. Por favor, inténtalo más tarde.');
-=======
+                // Imprime el error 
                 alert(error.data.detail);
->>>>>>> b95202f ( corrección editUser)
             }
         },
 

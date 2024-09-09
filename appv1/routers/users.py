@@ -83,9 +83,10 @@ def update_user_by_id(
     if verify_user is None:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
-    verify_new_email = get_user_by_email(db, user.mail)
-    if verify_new_email:
-        raise HTTPException(status_code=400, detail="El email ya está registrado")
+    if current_user.mail != user.mail:
+        verify_new_email = get_user_by_email(db, user.mail)
+        if verify_new_email:
+            raise HTTPException(status_code=400, detail="El email ya está registrado")
 
     db_user = update_user(db, user_id, user)
     if db_user:

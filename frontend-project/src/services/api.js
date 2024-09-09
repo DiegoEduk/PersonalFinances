@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useAuthStore } from '@/store'; // Importa el store de Pinia
+import { useSpinnerStore } from '@/store/spinner'; // Importa el store de Pinia para el spinner
 import router from '@/router'; // Importa el router de Vue
 
 // Crear una instancia de Axios
@@ -14,6 +15,10 @@ const api = axios.create({
 // Interceptor para añadir el token de autorización
 api.interceptors.request.use(config => {
     const authStore = useAuthStore(); // Obtener el store de autenticación
+
+    const spinnerStore = useSpinnerStore(); // Obtener el store del spinner
+    spinnerStore.showSpinner(); // Mostrar spinner al iniciar la petición
+
     const token = authStore.accessToken;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`; // Añadir el token a las cabeceras
@@ -23,11 +28,17 @@ api.interceptors.request.use(config => {
     return Promise.reject(error);
   });
 
-
-// Interceptor para manejar errores
+// Interceptor para manejar respuestas y errores
 api.interceptors.response.use(response => {
+
+  const spinnerStore = useSpinnerStore(); // Obtener el store del spinner
+  spinnerStore.hideSpinner(); // Ocultar el spinner al recibir la respuesta
+
   return response;
 }, error => {
+  const spinnerStore = useSpinnerStore(); // Obtener el store del spinner
+  spinnerStore.hideSpinner(); // Ocultar el spinner si hay un error
+  
   if (error.response && error.response.status === 401 && error.response.data.detail === 'Invalid token') {
     // Elimina el token y los datos de usuario del store
     const authStore = useAuthStore();
@@ -37,6 +48,5 @@ api.interceptors.response.use(response => {
   }
   return Promise.reject(error);
 });
-
 
 export default api;
