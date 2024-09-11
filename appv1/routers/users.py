@@ -1,10 +1,11 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 from appv1.crud.permissions import get_permissions
 from appv1.crud.users import create_user_sql, delete_user, get_all_users, get_all_users_paginated, get_user_by_email, get_user_by_id, update_user
 from appv1.routers.login import get_current_user
 from appv1.schemas.user import PaginatedUsersResponse, UserCreate, UserResponse, UserUpdate
+from core.utils import process_and_save_image
 from db.database import get_db
 
 router = APIRouter()
@@ -12,7 +13,11 @@ MODULE = 'usuarios'
 
 @router.post("/create")
 async def insert_user(
-    user: UserCreate,
+    full_name: str = Form(...),
+    mail: str = Form(...),
+    user_role: str = Form(...),
+    passhash: str = Form(...),
+    file_img: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user: UserResponse = Depends(get_current_user)
 ):
@@ -21,18 +26,33 @@ async def insert_user(
         raise HTTPException(status_code=401, detail="Usuario no autorizado")
     
     if current_user.user_role != 'SuperAdmin':
-        if user.user_role == 'SuperAdmin':
+        if user_role == 'SuperAdmin':
             raise HTTPException(status_code=401, detail="Usuario no autorizado")
     
     # Verificar si el email ya está registrado
-    existing_user = get_user_by_email(db, user.mail)
+    existing_user = get_user_by_email(db, mail)
     if existing_user:
         raise HTTPException(status_code=400, detail="El email ya está registrado")
 
-    respuesta = create_user_sql(db, user)
-    if respuesta:
-        return {"mensaje":"usuario registrado con éxito"}
+    # Llamamos a la función para procesar y guardar la imagen
+    try:
+        file_path = process_and_save_image(file_img)
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     
+    # Crear el objeto `UserCreate`
+    user = UserCreate(
+        full_name=full_name,
+        mail=mail,
+        user_role=user_role,
+        passhash=passhash
+    )
+
+    respuesta = create_user_sql(db, user, file_path)
+    if respuesta:
+        return {"mensaje": "usuario registrado con éxito"}
+    else:
+        raise HTTPException(status_code=500, detail="Error al registrar el usuario")
     
 @router.get("/get-user-by-email/", response_model=UserResponse)
 async def read_user_by_email(

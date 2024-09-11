@@ -66,7 +66,7 @@
 
     <!-- Modal para crear / editar usuario -->
     <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <!-- Título cambia según el modo (crear o editar) -->
@@ -76,27 +76,42 @@
             </button>
           </div>
           <div class="modal-body">
-            <!-- Formulario que llama a registerUser o updateUser según el modo isEditMode -->
-            <form @submit.prevent="isEditMode ? updateUser() : registerUser()">
-              <div class="mb-3">
-                <label for="userName" class="form-label">Nombre</label>
-                <input type="text" id="userName" class="form-control" v-model="currentUser.full_name" required>
-              </div>
-              <div class="mb-3">
-                <label for="userEmail" class="form-label">Correo</label>
-                <input type="email" id="userEmail" class="form-control" v-model="currentUser.mail" required>
-              </div>
-              <div class="mb-3">
-                <RolesSelect :selectedRole="currentUser.user_role" @role-selected="updateUserRole" />
-              </div>
-              <!-- Campo para la contraseña, v-if hace que solo se muestra en el modo de crear usuario  -->
-              <div class="mb-3" v-if="!isEditMode">
-                <label for="userPassword" class="form-label">Contraseña</label>
-                <input type="password" id="userPassword" class="form-control" v-model="currentUser.passhash" required>
-              </div>
-              <!-- Botón de enviar (guardar o registrar) según isEditMode -->
-              <button type="submit" class="btn btn-primary">{{ isEditMode ? 'Guardar Cambios' : 'Registrar Usuario' }}</button>
-            </form>
+            <div class="row">
+                <div class="col-sm-6">
+                    <!-- Formulario que llama a registerUser o updateUser según el modo isEditMode -->
+                    <form @submit.prevent="isEditMode ? updateUser() : registerUser()">
+                        <div class="mb-3">
+                            <label for="userName" class="form-label">Nombre</label>
+                            <input type="text" id="userName" class="form-control" v-model="currentUser.full_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="userEmail" class="form-label">Correo</label>
+                            <input type="email" id="userEmail" class="form-control" v-model="currentUser.mail" required>
+                        </div>
+                        <div class="mb-3">
+                            <RolesSelect :selectedRole="currentUser.user_role" @role-selected="updateUserRole" />
+                        </div>
+                        <!-- Campo para la contraseña, v-if hace que solo se muestra en el modo de crear usuario  -->
+                        <div class="mb-3" v-if="!isEditMode">
+                            <label for="userPassword" class="form-label">Contraseña</label>
+                            <input type="password" id="userPassword" class="form-control" v-model="currentUser.passhash" required>
+                        </div>
+                        <!-- Campo para cargar la imagen -->
+                        <div class="form-group">
+                            <label for="imageUpload"  class="form-label">Cargar Imagen:</label>
+                            <input type="file" id="imageUpload" class="form-control" @change="onImageChange" accept="image/*" />
+                        </div>
+                        <!-- Botón de enviar (guardar o registrar) según isEditMode -->
+                        <button type="submit" class="btn btn-primary">{{ isEditMode ? 'Guardar Cambios' : 'Registrar Usuario' }}</button>
+                    </form>
+                </div>
+                <div class="col-sm-6">
+                    <div class="m-3">
+                        <!-- Aquí cargar visualizar imagen -->
+                        <img v-if="imagePreview" :src="imagePreview" alt="Previsualización de imagen" class="img-fluid" />
+                    </div>  
+                </div>
+            </div>
           </div>
         </div>
       </div>
@@ -116,6 +131,9 @@ export default {
             currentPage: 1,  // Página actual para la paginación
             totalPages: 0,  // Total de páginas
             isEditMode: false,  // Indica si estamos en modo edición o creación
+
+            imageFile: '',
+            imagePreview: '',
         }
     },
     components: {
@@ -193,14 +211,14 @@ export default {
 
         // Actualizamos el rol seleccionado en `currentUser`
         updateUserRole(selectedRole) {
-            this.currentUser.user_role = selectedRole; 
+            this.currentUser.user_role = selectedRole;
         },
 
         // Registra un nuevo usuario llamando a la API
         async registerUser() {
             try {
                 // Usa la función createUser (llamando a la API) para crear un nuevo usuario 
-                await createUser(this.currentUser.full_name, this.currentUser.mail, this.currentUser.user_role, this.currentUser.passhash);
+                await createUser(this.currentUser.full_name, this.currentUser.mail, this.currentUser.user_role, this.currentUser.passhash, this.imageFile);
                 alert('Usuario registrado exitosamente');
                 this.fetchUsers(); // Refresca la lista de usuarios después de registrar
                 $('#userModal').modal('hide'); // Cierra el modal
@@ -222,6 +240,15 @@ export default {
                 alert(error.data.detail);
             }
         },
+
+        onImageChange(event) {
+            const file = event.target.files[0];
+            if (file) {
+                this.imageFile = file;
+                this.imagePreview = URL.createObjectURL(file);
+            }
+        },
+        
 
     }, // end-methods
     mounted() {

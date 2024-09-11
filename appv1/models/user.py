@@ -11,6 +11,7 @@ class User(Base):
     passhash = Column(String(140))
     user_role = Column(String(15), ForeignKey('roles.rol_name'))
     user_status = Column(Boolean, default=True)
+    img_profile = Column(String(180))
     created_at = Column(TIMESTAMP, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 

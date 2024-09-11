@@ -1,14 +1,23 @@
-import api from './api'; // Asegúrate de que `api.js` esté configurado adecuadamente
+import api from './api'; 
 
-// Función para crear un nuevo usuario
-export const createUser = async (fullName, email, userRole, passhash) => {
+// Función para crear un nuevo usuario con un archivo de imagen
+export const createUser = async (fullName, email, userRole, passhash, fileImg) => {
   try {
-    const response = await api.post('/users/create', {
-      full_name: fullName,
-      mail: email,
-      user_role: userRole,
-      passhash: passhash
+    // Crea un objeto FormData para manejar multipart/form-data
+    const formData = new FormData();
+    formData.append('full_name', fullName);
+    formData.append('mail', email);
+    formData.append('user_role', userRole);
+    formData.append('passhash', passhash);
+    formData.append('file_img', fileImg); // Archivo de imagen
+
+    // No necesitas pasar el token, ya que el interceptor lo añade automáticamente
+    const response = await api.post('/users/create', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data', // Asegúrate de que el encabezado es multipart/form-data
+      },
     });
+
     return response;
   } catch (error) {
     if (error.response) {

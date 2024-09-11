@@ -13,6 +13,7 @@ class UserCreate(UserBase):
 class UserResponse(UserBase):
     user_id: str
     user_status: bool = True
+    img_profile: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 

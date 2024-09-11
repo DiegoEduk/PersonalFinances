@@ -42,12 +42,14 @@ export default {
         // Obtener roles cuando el componente se monta
         onMounted(fetchRoles);
 
-        // Usar watchEffect para observar y sincronizar selectedRole con props.selectedRole
-        watchEffect(() => {
-            if (selectedRole.value !== props.selectedRole) {
-                selectedRole.value = props.selectedRole;
-            }
-        });
+        // Usar watch para observar cambios en props.selectedRole
+        watch(
+            () => props.selectedRole,
+            (newRole) => {
+                selectedRole.value = newRole;
+            },
+            { immediate: true }
+        );
 
         return {
             roles,

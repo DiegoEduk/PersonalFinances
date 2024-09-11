@@ -117,7 +117,7 @@ def send_email(to_email: str, subject: str, body: str):
 
         # Verificar si la respuesta tiene contenido antes de intentar convertirla en JSON
         if response.content and response.headers.get('Content-Type') == 'application/json':
-            return response.json()  # Intentar convertir la respuesta en JSON
+            return response.json()  # convertir la respuesta en JSON
         else:
             print(f"Respuesta sin contenido JSON: {response.status_code} - {response.text}")
             return {"message": "Email enviado, pero no se recibió una respuesta JSON válida"}
