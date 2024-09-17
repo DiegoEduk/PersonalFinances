@@ -108,15 +108,17 @@ def delete_transaction(db: Session, transaction_id: int):
         raise HTTPException(status_code=500, detail="Error al eliminar transacción.")
 
 # Obtiene las transacciones de un usuario en un rango de fechas
-def get_transactions_by_user_and_date_range(db: Session, user_id: str, start_date: str, end_date: str):
+def get_transactions_by_user_and_date_range(db: Session, user_id: str, type: str,start_date: str, end_date: str):
     try:
         sql_query = text(
             "SELECT * FROM transactions "
             "WHERE user_id = :user_id "
+            "AND t_type = :type "
             "AND t_date BETWEEN :start_date AND :end_date"
         )
         params = {
             "user_id": user_id,
+            "type": type,
             "start_date": start_date,
             "end_date": end_date
         }

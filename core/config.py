@@ -16,12 +16,14 @@ class Settings:
     DB_PASSWORD: str = os.getenv("DB_PASSWORD")
     DB_NAME: str = os.getenv("DB_NAME")
     DB_PORT: str = os.getenv("DB_PORT", 3306)  # default mysql port is 3306
+    UPLOAD_FOLDER: str = os.getenv("UPLOAD_FOLDER")
+    UPLOAD_DIRECTORY: str = os.getenv("UPLOAD_DIRECTORY")
     
     DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
     SECRET_KEY: str = os.getenv("SECRET_KEY")
     
-    TOKEN_EXPIRE_MIN = 30  # in mins
+    TOKEN_EXPIRE_MIN: int = os.getenv("TOKEN_EXPIRE_MIN")
     ALGORITHM: str = os.getenv("ALGORITHM")
 
 settings = Settings()

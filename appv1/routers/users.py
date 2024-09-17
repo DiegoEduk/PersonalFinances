@@ -90,7 +90,10 @@ async def read_all_users(
 @router.put("/update/", response_model=dict)
 def update_user_by_id(
     user_id: str, 
-    user: UserUpdate,
+    full_name: str = Form(...),
+    mail: str = Form(...),
+    user_role: str = Form(...),
+    file_img: UploadFile = File(None), # ahora es 
     db: Session = Depends(get_db),
     current_user: UserResponse = Depends(get_current_user)
 ):
@@ -103,12 +106,30 @@ def update_user_by_id(
     if verify_user is None:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
-    if current_user.mail != user.mail:
-        verify_new_email = get_user_by_email(db, user.mail)
+    if verify_user.mail != mail:
+        # si cambia el email, verificar que el nuevo email no exista
+        verify_new_email = get_user_by_email(db, mail)
         if verify_new_email:
             raise HTTPException(status_code=400, detail="El email ya está registrado")
 
-    db_user = update_user(db, user_id, user)
+    # Crear el objeto `UserUpdate`
+    user = UserUpdate(
+        full_name=full_name,
+        mail=mail,
+        user_role=user_role,
+        user_status=verify_user.user_status
+    )
+    
+    # Si se proporciona una nueva imagen, procesarla
+    if file_img:
+        try:
+            file_path = process_and_save_image(file_img)
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+    else:
+        file_path = None
+
+    db_user = update_user(db, user_id, user, file_path)
     if db_user:
         return {"mensaje": "registro actualizado con éxito" }
 

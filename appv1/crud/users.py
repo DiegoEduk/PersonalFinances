@@ -66,7 +66,7 @@ def get_all_users(db: Session):
         print(f"Error al buscar usuarios: {e}")
         raise HTTPException(status_code=500, detail="Error al buscar usuarios")
 
-def update_user(db: Session, user_id: str, user: UserUpdate):
+def update_user(db: Session, user_id: str, user: UserUpdate, file_path: str):
     try:
         sql = "UPDATE users SET "
         params = {"user_id": user_id}
@@ -83,6 +83,9 @@ def update_user(db: Session, user_id: str, user: UserUpdate):
         if user.user_status is not None:
             updates.append("user_status = :user_status")
             params["user_status"] = user.user_status
+        if file_path is not None:
+            updates.append("img_profile = :img_profile")
+            params["img_profile"] = file_path
         
         for ind, valor in enumerate(updates):
             if len(updates) - 1 == ind:

@@ -109,7 +109,7 @@
                     <div class="m-3">
                         <!-- Aquí cargar visualizar imagen -->
                         <img v-if="imagePreview" :src="imagePreview" alt="Previsualización de imagen" class="img-fluid" />
-                        <img v-if="currentUser && currentUser.img_profile" :src="currentUser.img_profile" alt="Profile Image" />
+                        <img v-if="currentUser && currentUser.img_profile" :src="`${apiUrl}${currentUser.img_profile}`" alt="Profile Image" />
                         <!-- Alternativa si no hay imagen disponible -->
                         <p v-else>No hay imagen disponible</p>
                     </div>  
@@ -134,7 +134,8 @@ export default {
             currentPage: 1,  // Página actual para la paginación
             totalPages: 0,  // Total de páginas
             isEditMode: false,  // Indica si estamos en modo edición o creación
-
+            apiUrl: import.meta.env.VITE_API_URL, // Tomar la URL base de la variable de entorno
+            
             imageFile: '',
             imagePreview: '',
         }

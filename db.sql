@@ -38,12 +38,12 @@ CREATE TABLE users (
     passhash VARCHAR(140),
     user_role VARCHAR(15),
     user_status TINYINT(1) DEFAULT 1,
+    img_profile VARCHAR(180),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_role) REFERENCES roles (rol_name)
 );
 
-ALTER TABLE users ADD img_profile VARCHAR(180) AFTER user_status;
 
 CREATE TABLE category (
     category_id SMALLINT(3) AUTO_INCREMENT PRIMARY KEY,
@@ -70,7 +70,6 @@ CREATE TABLE transactions_files (
     file_url VARCHAR(120),
     FOREIGN KEY (transactions_id) REFERENCES transactions (transactions_id)
 );
-
 
 INSERT INTO roles(rol_name) VALUES ('SuperAdmin');
 INSERT INTO roles(rol_name) VALUES ('Admin');

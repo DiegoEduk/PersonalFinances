@@ -4,6 +4,9 @@ from fastapi import HTTPException
 from PIL import Image
 import uuid
 import os
+from fastapi import UploadFile
+import shutil
+from core.config import settings
 
 # Función para generar un ID de usuario aleatorio
 def generate_user_id(length=30):
@@ -14,9 +17,10 @@ def generate_user_id(length=30):
 
     return random_id
 
-# Carpeta donde se guardarán las imágenes
-UPLOAD_DIRECTORY = "./static/images/"
-os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
+# Para subir imagenes
+# Carpeta donde se guardarán las imágenes se asigna en .env 
+# UPLOAD_DIRECTORY = "static/images/"
+os.makedirs(settings.UPLOAD_DIRECTORY, exist_ok=True)
 
 # pip install pillow
 # Función para procesar y guardar la imagen
@@ -36,7 +40,7 @@ def process_and_save_image(file):
     
     # Generar un nombre único para la imagen (siempre guardamos como .jpg)
     unique_filename = f"{uuid.uuid4()}.jpg"
-    file_path = os.path.join(UPLOAD_DIRECTORY, unique_filename)
+    file_path = os.path.join(settings.UPLOAD_DIRECTORY, unique_filename)
 
     # Abrir y procesar la imagen con Pillow
     image = Image.open(file.file)
@@ -49,12 +53,9 @@ def process_and_save_image(file):
 
 # Para subir archivos
 
-from fastapi import UploadFile
-import shutil
-
-# Configuración del directorio de subida
-UPLOAD_FOLDER = "static/files"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# Configuración del directorio de subida se asigna en .env
+# UPLOAD_FOLDER = "static/files"
+os.makedirs(settings.UPLOAD_FOLDER, exist_ok=True)
 
 # Tipos de archivos permitidos
 ALLOWED_EXTENSIONS = {"pdf", "doc", "docx", "xls", "xlsx"}
@@ -70,9 +71,9 @@ def save_file(file: UploadFile) -> str:
     
     file_extension = file.filename.rsplit('.', 1)[1].lower()
     unique_filename = f"{uuid.uuid4()}.{file_extension}"
-    file_location = os.path.join(UPLOAD_FOLDER, unique_filename)
+    file_location = os.path.join(settings.UPLOAD_FOLDER, unique_filename)
     
     with open(file_location, "wb") as f:
-        shutil.copyfileobj(file.file, f)
+        shutil.copyfileobj(file.file, f)  # alamacena el archivo
     
     return file_location  # Devuelve la ruta completa del archivo
