@@ -134,7 +134,7 @@ def get_all_users_paginated(db: Session, page: int = 1, page_size: int = 10):
 
         # Consulta SQL con paginación, incluyendo todos los campos requeridos
         sql = text(
-            "SELECT user_id, full_name, mail, user_role, user_status, created_at, updated_at "
+            "SELECT user_id, full_name, mail, user_role, user_status, img_profile, created_at, updated_at "
             "FROM users "
             "ORDER BY created_at DESC "  # Cambia esto por tu criterio de ordenación
             "LIMIT :page_size OFFSET :offset"

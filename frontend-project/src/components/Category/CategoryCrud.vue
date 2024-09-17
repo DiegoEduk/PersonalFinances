@@ -33,8 +33,8 @@
                                 <td>{{ category.category_description }}</td>
                                 <td>
                                     <div class="custom-control custom-switch">
-                                        <input type="checkbox" class="custom-control-input" :id="category.category_id" v-model="category.category_status" @change="toggleCategoryStatus(category)">
-                                        <label class="custom-control-label" for="{{ category.category_id }}">{{ category.category_status ? 'Activa' : 'Inactiva' }}</label>
+                                        <input type="checkbox" class="custom-control-input" :id="`switch-${category.category_id}`" :checked="category.category_status" @change="toggleCategoryStatus(category)">
+                                        <label class="custom-control-label" :for="`switch-${category.category_id}`">{{ category.category_status ? 'Activa' : 'Inactiva' }}</label>
                                     </div>
                                 </td>
                                 <!-- Botones para editar o eliminar una categoría  -->
@@ -85,7 +85,7 @@
 
 <script>
 // Importar los metodos del archivo /services/categoryService para hacer peticiones a la API
-import { deleteCategory, getAllActiveCategories, updateCategory, createCategory } from '@/services/categoryService';
+import { deleteCategory, getAllActiveCategories, updateCategory, createCategory, setCategoryStatus } from '@/services/categoryService';
 
 export default {
     data() {
@@ -159,11 +159,23 @@ export default {
         },
 
         toggleCategoryStatus(category) {
-            // Lógica para manejar el cambio de estado del switch
-            console.log(`La categoría ${category.category_name} ahora está ${category.category_status ? 'activa' : 'inactiva'}`);
-            
+            // Cambiar el valor del estado
+            category.category_status = category.category_status == 1 ? 0 : 1;
             // Si necesitas actualizar el backend con el nuevo estado:
-            // this.updateCategoryStatus(category);
+            this.updateCategoryStatus(category.category_id, category.category_status);
+        },
+
+        // Actualizar el estado de la categoria
+        async updateCategoryStatus(id, theStatus) {
+            if (confirm('¿Estás seguro de que deseas cambiar el estado de la categoría?')) {
+                try {
+                    await setCategoryStatus(id, theStatus);
+                    alert('El estado de la Categoría, actualizado exitosamente');
+                    this.fetchCategories();
+                } catch (error) {
+                    alert(error.data.detail);
+                }
+            }
         },
     },
     mounted() {

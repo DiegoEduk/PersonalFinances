@@ -79,7 +79,9 @@ export const deleteCategory = async (categoryId) => {
 // Función para cambiar el estado (activo/inactivo) de una categoría
 export const setCategoryStatus = async (categoryId, isActive) => {
   try {
-    const response = await api.put(`/category/status/${categoryId}`, { is_active: isActive });
+    const response = await api.put(`/category/status/${categoryId}`, null, {
+      params: { is_active: isActive }
+    });
     return response;
   } catch (error) {
     if (error.response) {

@@ -11,5 +11,6 @@ const pinia = createPinia();
 
 // Usar Pinia en la aplicación
 app.use(pinia);
+
 app.use(router); // Asegúrate de que esté registrado con la aplicación
 app.mount('#app');

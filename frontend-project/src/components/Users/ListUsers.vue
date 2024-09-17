@@ -32,7 +32,7 @@
                             <!-- Recorre la lista de usuarios con v-for -->
                             <tr v-for="user in users" :key="user.user_id">
                                 <!-- Muestra los datos de cada usuario en cada td-->
-                                <td>{{ user.full_name }}</td>
+                                <td>{{ user.img_profile }} - {{ user.full_name }}</td>
                                 <td>{{ user.mail }}</td>
                                 <td>{{ user.user_role }}</td>
                                 <td>{{ user.user_status ? 'Activo' : 'Inactivo' }}</td>
@@ -109,6 +109,9 @@
                     <div class="m-3">
                         <!-- Aquí cargar visualizar imagen -->
                         <img v-if="imagePreview" :src="imagePreview" alt="Previsualización de imagen" class="img-fluid" />
+                        <img v-if="currentUser && currentUser.img_profile" :src="currentUser.img_profile" alt="Profile Image" />
+                        <!-- Alternativa si no hay imagen disponible -->
+                        <p v-else>No hay imagen disponible</p>
                     </div>  
                 </div>
             </div>
@@ -205,6 +208,7 @@ export default {
         // Abre el modal para editar un usuario
         openEditModal(user) {
             this.currentUser = { ...user }; // Clona el usuario seleccionado
+            console.log(this.currentUser.img_profile);
             this.isEditMode = true; // Cambia el modo a editar a verdadero
             $('#userModal').modal('show'); // Abre el modal
         },
