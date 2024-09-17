@@ -4,8 +4,8 @@ import api from './api';
 export const createCategory = async (categoryName, categoryDescription) => {
   try {
     const response = await api.post('/category/create', {
-      name: categoryName,
-      description: categoryDescription
+      category_name: categoryName,  
+      category_description: categoryDescription
     });
     return response;
   } catch (error) {
@@ -49,8 +49,8 @@ export const getAllActiveCategories = async () => {
 export const updateCategory = async (categoryId, categoryName, categoryDescription) => {
   try {
     const response = await api.put(`/category/update/${categoryId}`, {
-      name: categoryName,
-      description: categoryDescription
+      category_name: categoryName,
+      category_description: categoryDescription
     });
     return response;
   } catch (error) {

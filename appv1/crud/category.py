@@ -42,9 +42,9 @@ def get_category_by_id(db: Session, category_id: int):
         print(f"Error al buscar categoría por ID: {e}")
         raise HTTPException(status_code=500, detail="Error al buscar categoría")
 
-def get_all_active_categories(db: Session):
+def get_all_categories(db: Session):
     try:
-        sql = text("SELECT * FROM category WHERE category_status = true")
+        sql = text("SELECT * FROM category")
         result = db.execute(sql).mappings().all()
         return result  # Convertimos cada fila en un CategoryResponse
     except SQLAlchemyError as e:

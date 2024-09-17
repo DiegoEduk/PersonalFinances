@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-from appv1.crud.category import create_category_sql, delete_category, get_all_active_categories, get_category_by_id, get_category_by_name, set_category_status, update_category
+from appv1.crud.category import create_category_sql, delete_category, get_all_categories, get_category_by_id, get_category_by_name, set_category_status, update_category
 from appv1.crud.permissions import get_permissions
 from appv1.routers.login import get_current_user
 from appv1.schemas.category import CategoryCreate, CategoryResponse, CategoryUpdate
@@ -44,7 +44,7 @@ async def read_category(
 
 # Ruta para obtener todas las categorías activas
 @router.get("/get-all", response_model=List[CategoryResponse])
-async def read_active_categories(
+async def read_categories(
     db: Session = Depends(get_db),
     current_user: UserResponse = Depends(get_current_user)
 ):
@@ -52,7 +52,7 @@ async def read_active_categories(
     if not permisos.p_select:
         raise HTTPException(status_code=401, detail="Usuario no autorizado")
     
-    return get_all_active_categories(db)
+    return get_all_categories(db)
 
 # Ruta para actualizar una categoría por ID
 @router.put("/update/{category_id}", response_model=dict)
