@@ -23,7 +23,7 @@ class Settings:
 
     SECRET_KEY: str = os.getenv("SECRET_KEY")
     
-    TOKEN_EXPIRE_MIN: int = os.getenv("TOKEN_EXPIRE_MIN")
+    TOKEN_EXPIRE_MIN: int = int(os.getenv("TOKEN_EXPIRE_MIN"))
     ALGORITHM: str = os.getenv("ALGORITHM")
 
 settings = Settings()
