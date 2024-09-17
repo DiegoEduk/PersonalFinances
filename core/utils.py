@@ -18,6 +18,7 @@ def generate_user_id(length=30):
 UPLOAD_DIRECTORY = "./static/images/"
 os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
+# pip install pillow
 # Función para procesar y guardar la imagen
 def process_and_save_image(file):
     # Validar tipo de archivo
@@ -45,3 +46,33 @@ def process_and_save_image(file):
     image.save(file_path, "JPEG", quality=85)  # Guardar como JPEG con un 85% de calidad
 
     return file_path  # Devolver la ruta donde se guardó la imagen
+
+# Para subir archivos
+
+from fastapi import UploadFile
+import shutil
+
+# Configuración del directorio de subida
+UPLOAD_FOLDER = "static/files"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# Tipos de archivos permitidos
+ALLOWED_EXTENSIONS = {"pdf", "doc", "docx", "xls", "xlsx"}
+
+# Verifica si el archivo tiene una extensión permitida.
+def allowed_file(filename: str) -> bool:
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# Guarda el archivo en el directorio de subida y devuelve la ruta completa del archivo.
+def save_file(file: UploadFile) -> str:
+    if not allowed_file(file.filename):
+        raise HTTPException(status_code=400, detail="Invalid file type. Allowed types: pdf, doc, docx, xls, xlsx")
+    
+    file_extension = file.filename.rsplit('.', 1)[1].lower()
+    unique_filename = f"{uuid.uuid4()}.{file_extension}"
+    file_location = os.path.join(UPLOAD_FOLDER, unique_filename)
+    
+    with open(file_location, "wb") as f:
+        shutil.copyfileobj(file.file, f)
+    
+    return file_location  # Devuelve la ruta completa del archivo

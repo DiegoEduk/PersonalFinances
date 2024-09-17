@@ -122,7 +122,6 @@ def update_password(db: Session, email: str, new_password: str):
         # Confirmar los cambios
         db.commit()
         return True
-
     except SQLAlchemyError as e:
         db.rollback()  # Deshacer los cambios si ocurre un error
         print(f"Error al actualizar password: {e}")

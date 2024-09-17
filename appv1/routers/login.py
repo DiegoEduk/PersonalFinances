@@ -1,12 +1,18 @@
 from typing import Annotated, List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 from appv1.crud.permissions import get_all_permissions
 from appv1.crud.users import create_user_sql, get_user_by_email, get_user_by_id, update_password
 from appv1.schemas.user import ChangePassword, ResponseLoggin, UserCreate, UserLoggin
 from core.security import create_access_token, verify_password, verify_token
+from core.utils import process_and_save_image
 from db.database import get_db
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+
+import random
+import string
+import time
+import requests
 
 router = APIRouter()
 
@@ -65,11 +71,35 @@ async def login_for_access_token(
 
 @router.post("/register")
 async def register_user(
-    user: UserCreate,
+    full_name: str = Form(...),
+    mail: str = Form(...),
+    user_role: str = Form(...),
+    passhash: str = Form(...),
+    file_img: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
-    user.user_role = 'Cliente'
-    respuesta = create_user_sql(db, user)
+    user_role = 'Cliente'
+
+    # Verificar si el email ya está registrado
+    existing_user = get_user_by_email(db, mail)
+    if existing_user:
+        raise HTTPException(status_code=400, detail="El email ya está registrado")
+
+    # Llamamos a la función para procesar y guardar la imagen
+    try:
+        file_path = process_and_save_image(file_img)
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    
+    # Crear el objeto `UserCreate`
+    user = UserCreate(
+        full_name=full_name,
+        mail=mail,
+        user_role=user_role,
+        passhash=passhash
+    )
+
+    respuesta = create_user_sql(db, user, file_path)
     if respuesta:
         return {"mensaje":"usuario registrado con éxito"}
 
@@ -78,11 +108,6 @@ async def register_user(
 # usa código que expira en 2 minutos
 # usa servicio API de mailersend
 # instalar pip install requests Es ampliamente utilizada para interactuar con servicios web, APIs 
-
-import random
-import string
-import time
-import requests
 
 # almacen de códigos de verificación.
 verification_codes = {}
@@ -135,13 +160,16 @@ def send_email(to_email: str, subject: str, body: str):
 
 
 @router.post("/request-reset-code")
-async def request_reset_code(email: str, db: Session = Depends(get_db)):
+async def request_reset_code(
+    email: str,
+    db: Session = Depends(get_db)
+):
     user = get_user_by_email(db, email)
     if not user:
         raise HTTPException(status_code=404, detail="Email no registrado")
 
-    code = generate_code()
-    verification_codes[email] = {'code': code, 'expires_at': time.time() + 1200}
+    code = generate_code() # generamos el código y lo almacenos en el diccionario con el tiempo de expiración
+    verification_codes[email] = {'code': code, 'expires_at': time.time() + 3000}
 
     try:
         send_email(
@@ -157,11 +185,19 @@ async def request_reset_code(email: str, db: Session = Depends(get_db)):
 
 
 @router.post("/change-password")
-async def change_password(data: ChangePassword, db: Session = Depends(get_db)):
+async def change_password(
+    data: ChangePassword, 
+    db: Session = Depends(get_db)
+):
     # Verificar código
     code_info = verification_codes.get(data.email)
-    if not code_info or code_info['code'] != data.code or time.time() > code_info['expires_at']:
-        raise HTTPException(status_code=400, detail="Código Invalido o ya expiró")
+    if not code_info:
+        raise HTTPException(status_code=400, detail="Código no existe")
+    
+    if code_info['code'] != data.code or time.time() > code_info['expires_at']:
+        # Eliminar código de verificación (opcional)
+        del verification_codes[data.email]
+        raise HTTPException(status_code=400, detail="Código inválido o ya expiró")
 
     # Cambiar la contraseña
     user = get_user_by_email(db, data.email)

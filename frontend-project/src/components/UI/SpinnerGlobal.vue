@@ -51,6 +51,6 @@ export default {
 .spinner{
   width: 4rem;
   height: 4rem;
-  color: #54EF2E;
+  color: white;
 }
 </style>

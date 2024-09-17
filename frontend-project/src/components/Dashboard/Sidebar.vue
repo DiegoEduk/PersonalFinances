@@ -31,7 +31,7 @@
             </li>
 
             <li class="nav-item" v-if="permission.p_select && permission.module_name == 'categorias' ">
-                <button class="btn btn-link text-white" @click="selectComponent('BlankPage')">
+                <button class="btn btn-link text-white" @click="selectComponent('CategoryCrud')">
                     <i class="fa-solid fa-list">&nbsp;</i>
                     <span class="text-capitalize">{{ permission.module_name }}</span>
                 </button>

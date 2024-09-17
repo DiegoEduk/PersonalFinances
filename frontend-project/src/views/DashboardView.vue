@@ -26,6 +26,7 @@ import Topbar from '../components/Dashboard/Topbar.vue';
 import BlankPage01 from '../components/Dashboard/BlankPage01.vue';
 import BlankPage02 from '../components/Dashboard/BlankPage02.vue';
 import ListUsers from '../components/Users/ListUsers.vue';
+import CategoryCrud from '../components/Category/CategoryCrud.vue';
 
 export default {
     components: {
@@ -37,6 +38,7 @@ export default {
         ListUsers: markRaw(ListUsers),
         BlankPage02: markRaw(BlankPage02),
         BlankPage02: markRaw(BlankPage02),
+        CategoryCrud: markRaw(CategoryCrud),
     },
     data() {
         return {
@@ -51,6 +53,7 @@ export default {
         BlankPage: BlankPage,
         ListUsers: ListUsers,
         BlankPage02: BlankPage02,
+        CategoryCrud: CategoryCrud,
         // otros componentes
       };
       // Cambia el componente actual

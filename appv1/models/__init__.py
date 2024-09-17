@@ -4,3 +4,4 @@ from appv1.models.permission import Permission
 from appv1.models.user import User
 from appv1.models.category import Category
 from appv1.models.transaction import Transaction
+from appv1.models.transaction_files import TransactionFiles

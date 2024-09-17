@@ -9,7 +9,8 @@ USE personal_finances;
 -- cualquier usuario puede modificar su propia información.
 
 CREATE TABLE roles (
-    rol_name VARCHAR(15) PRIMARY KEY
+    id_rol INT AUTO_INCREMENT PRIMARY KEY,
+    rol_name VARCHAR(15)
 );
 
 CREATE TABLE modules (
@@ -28,6 +29,8 @@ CREATE TABLE permissions(
     FOREIGN KEY (module_name) REFERENCES modules(module_name)
 );
 
+
+
 CREATE TABLE users (
     user_id CHAR(30) PRIMARY KEY,
     full_name VARCHAR(80),
@@ -39,6 +42,8 @@ CREATE TABLE users (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_role) REFERENCES roles (rol_name)
 );
+
+ALTER TABLE users ADD img_profile VARCHAR(180) AFTER user_status;
 
 CREATE TABLE category (
     category_id SMALLINT(3) AUTO_INCREMENT PRIMARY KEY,
@@ -59,6 +64,14 @@ CREATE TABLE transactions (
     FOREIGN KEY (category_id) REFERENCES category (category_id)
 );
 
+CREATE TABLE transactions_files (
+    file_transactions_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    transactions_id INT UNSIGNED,
+    file_url VARCHAR(120),
+    FOREIGN KEY (transactions_id) REFERENCES transactions (transactions_id)
+);
+
+
 INSERT INTO roles(rol_name) VALUES ('SuperAdmin');
 INSERT INTO roles(rol_name) VALUES ('Admin');
 INSERT INTO roles(rol_name) VALUES ('Cliente');
@@ -66,6 +79,7 @@ INSERT INTO roles(rol_name) VALUES ('Cliente');
 INSERT INTO modules VALUES ('roles');
 INSERT INTO modules VALUES ('usuarios');
 INSERT INTO modules VALUES ('transacciones');
+INSERT INTO modules VALUES ('categorias');
 
 INSERT INTO permissions VALUES ('SuperAdmin', 'roles', 1, 1, 1, 1);
 INSERT INTO permissions VALUES ('SuperAdmin', 'usuarios', 1, 1, 1, 1);
