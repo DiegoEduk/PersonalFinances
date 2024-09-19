@@ -18,7 +18,7 @@ import RolesSelect from '../Roles/RolesSelect.vue';
 export default {
     name: 'BlankPage',
     components: {
-        RolesSelect, // Incluir el spinner global
+        RolesSelect, 
     },
 };
 </script>

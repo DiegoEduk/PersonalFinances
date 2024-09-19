@@ -57,14 +57,25 @@ export const getUsersByPage = async (page = 1, pageSize = 10) => {
 };
 
 // Función para actualizar un usuario
-export const updateUser = async (userId, fullName, email, userRole, userStatus) => {
+export const updateUser = async (userId, fullName, email, userRole, imageFile = null) => {
   try {
-    const response = await api.put(`/users/update/?user_id=${userId}`, {
-      full_name: fullName,
-      mail: email,
-      user_role: userRole,
-      user_status: userStatus
+    const formData = new FormData();
+    formData.append('full_name', fullName);
+    formData.append('mail', email);
+    formData.append('user_role', userRole);
+
+    // Si se proporciona una imagen, agregarla al FormData
+    if (imageFile) {
+      formData.append('file_img', imageFile);
+    }
+
+    const response = await api.put(`/users/update/?user_id=${userId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}` // Asegúrate de obtener el token correctamente
+      }
     });
+
     return response;
   } catch (error) {
     if (error.response) {

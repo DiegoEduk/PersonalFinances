@@ -32,7 +32,7 @@
                             <!-- Recorre la lista de usuarios con v-for -->
                             <tr v-for="user in users" :key="user.user_id">
                                 <!-- Muestra los datos de cada usuario en cada td-->
-                                <td>{{ user.img_profile }} - {{ user.full_name }}</td>
+                                <td>{{ user.full_name }}</td>
                                 <td>{{ user.mail }}</td>
                                 <td>{{ user.user_role }}</td>
                                 <td>{{ user.user_status ? 'Activo' : 'Inactivo' }}</td>
@@ -109,9 +109,9 @@
                     <div class="m-3">
                         <!-- Aquí cargar visualizar imagen -->
                         <img v-if="imagePreview" :src="imagePreview" alt="Previsualización de imagen" class="img-fluid" />
-                        <img v-if="currentUser && currentUser.img_profile" :src="`${apiUrl}${currentUser.img_profile}`" alt="Profile Image" />
+                        <img v-if="!imageFile && currentUser && currentUser.img_profile" :src="`${apiUrl}${currentUser.img_profile}`" class="img-fluid" alt="Profile Image" />
                         <!-- Alternativa si no hay imagen disponible -->
-                        <p v-else>No hay imagen disponible</p>
+                        <p v-else-if="!imageFile">No hay imagen disponible</p>
                     </div>  
                 </div>
             </div>
@@ -201,6 +201,8 @@ export default {
         // Abre el modal para registrar un nuevo usuario
         openCreateModal() {
             // Inicializa los campos vacios
+            this.imagePreview = ''; // Limpiar la vista previa en caso de nueva selección
+            this.imageFile = null; // Resetear archivo de imagen al abrir para editar
             this.currentUser = { full_name: '', mail: '', user_role: '', passhash: '' }; // Inicializa el usuario vacío
             this.isEditMode = false; // Cambia el modo a editar a falso
             $('#userModal').modal('show'); // Abre el modal
@@ -209,8 +211,9 @@ export default {
         // Abre el modal para editar un usuario
         openEditModal(user) {
             this.currentUser = { ...user }; // Clona el usuario seleccionado
-            console.log(this.currentUser.img_profile);
             this.isEditMode = true; // Cambia el modo a editar a verdadero
+            this.imagePreview = ''; // Limpiar la vista previa en caso de nueva selección
+            this.imageFile = null; // Resetear archivo de imagen al abrir para editar
             $('#userModal').modal('show'); // Abre el modal
         },
 
@@ -222,7 +225,7 @@ export default {
         // Registra un nuevo usuario llamando a la API
         async registerUser() {
             try {
-                // Usa la función createUser (llamando a la API) para crear un nuevo usuario 
+                // Usa el servicio createUser (llamando a la API) para crear un nuevo usuario 
                 await createUser(this.currentUser.full_name, this.currentUser.mail, this.currentUser.user_role, this.currentUser.passhash, this.imageFile);
                 alert('Usuario registrado exitosamente');
                 this.fetchUsers(); // Refresca la lista de usuarios después de registrar
@@ -233,13 +236,21 @@ export default {
             }
         },
 
-        // Actualiza un usuario llamando a la API
+        // Actualiza un usuario llamando al servicio
         async updateUser() {
             try {
-                await updateUser(this.currentUser.user_id, this.currentUser.full_name, this.currentUser.mail, this.currentUser.user_role);
+                await updateUser(
+                    this.currentUser.user_id,
+                    this.currentUser.full_name,
+                    this.currentUser.mail,
+                    this.currentUser.user_role,
+                    this.imageFile // La imagen es opcional
+                );
+                
                 alert('Usuario actualizado exitosamente');
                 this.fetchUsers(); // Refresca la lista de usuarios después de actualizar
                 $('#userModal').modal('hide'); // Cierra el modal
+
             } catch (error) {
                 // Imprime el error 
                 alert(error.data.detail);
@@ -254,7 +265,6 @@ export default {
             }
         },
         
-
     }, // end-methods
     mounted() {
         this.fetchUsers(); // Llama al método para obtener al cargar este componente
