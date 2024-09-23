@@ -77,33 +77,47 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <form @submit.prevent="isEditMode ? updateTransactionMethod() : registerTransaction()">
-                            <div class="mb-3">
-                                <label for="description" class="form-label">Descripción</label>
-                                <input type="text" id="description" class="form-control" v-model="currentTransaction.t_description" required>
+                        <div class="row">
+                            <div class="col-6">
+                                <form @submit.prevent="isEditMode ? updateTransactionMethod() : registerTransaction()">
+                                    <div class="mb-3">
+                                        <label for="description" class="form-label">Descripción</label>
+                                        <input type="text" id="description" class="form-control" v-model="currentTransaction.t_description" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="amount" class="form-label">Monto</label>
+                                        <input type="number" id="amount" class="form-control" v-model="currentTransaction.amount" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="type" class="form-label">Tipo</label>
+                                        <select v-model="currentTransaction.t_type" class="form-control" required>
+                                            <option value="revenue">Ingreso</option>
+                                            <option value="expenses">Gasto</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="category" class="form-label">Categoría</label>
+                                        <!-- Pasar la categoría seleccionada actual al componente CategorySelect -->
+                                        <CategorySelect :selected-category-id="currentTransaction.category_id" @category-selected="updateTransactionCategory" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="date" class="form-label">Fecha</label>
+                                        <input type="date" id="date" class="form-control" v-model="currentTransaction.t_date" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">{{ isEditMode ? 'Guardar Cambios' : 'Registrar Transacción' }}</button>
+                                </form>
                             </div>
-                            <div class="mb-3">
-                                <label for="amount" class="form-label">Monto</label>
-                                <input type="number" id="amount" class="form-control" v-model="currentTransaction.amount" required>
+                            <div class="col-6">
+                                <form @submit.prevent="uploadTransactionFiles()">
+                                     <!-- Campo para subir archivo relacionado con la transacción -->
+                                    <div class="mb-3">
+                                        <label for="fileUpload" class="form-label">Subir Archivo</label>
+                                        <input type="file" id="fileUpload" class="form-control" @change="handleFileChange">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Almacenar Archivo</button>
+                                </form>
                             </div>
-                            <div class="mb-3">
-                                <label for="type" class="form-label">Tipo</label>
-                                <select v-model="currentTransaction.t_type" class="form-control" required>
-                                    <option value="revenue">Ingreso</option>
-                                    <option value="expenses">Gasto</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="category" class="form-label">Categoría</label>
-                                <!-- Pasar la categoría seleccionada actual al componente CategorySelect -->
-                                <CategorySelect :selected-category-id="currentTransaction.category_id" @category-selected="updateTransactionCategory" />
-                            </div>
-                            <div class="mb-3">
-                                <label for="date" class="form-label">Fecha</label>
-                                <input type="date" id="date" class="form-control" v-model="currentTransaction.t_date" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">{{ isEditMode ? 'Guardar Cambios' : 'Registrar Transacción' }}</button>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -113,7 +127,7 @@
 
 <script>
 // Importar los servicios del archivo transactionServices
-import { getTransactionsByUserAndDate, createTransaction, updateTransaction, deleteTransaction } from '@/services/transactionServices';
+import { getTransactionsByUserAndDate, createTransaction, updateTransaction, deleteTransaction, uploadTransactionFile } from '@/services/transactionServices';
 import CategorySelect from '../Category/CategorySelect.vue';
 import { useAuthStore } from '@/store/'; // Store de autenticación para obtener el user_id
 
@@ -125,12 +139,31 @@ export default {
             isEditMode: false,  // Indica si estamos en modo edición o creación
             startDate: '',  // Fecha de inicio para la búsqueda personalizada
             endDate: '',  // Fecha de fin para la búsqueda personalizada
+            selectedFile: null, // Para almacenar el archivo seleccionado
+            transactionFiles: [],
         };
     },
     components: {
         CategorySelect, // Registra el componente CategorySelect
     },
     methods: {
+        // Método para manejar la selección del archivo
+        handleFileChange(event) {
+            this.selectedFile = event.target.files[0]; // Almacena el archivo seleccionado
+        },
+
+        // Método para subir el archivo relacionado con la transacción
+        async uploadTransactionFiles() {
+            try {
+                if (this.selectedFile) {
+                    await uploadTransactionFile(this.currentTransaction.transactions_id, this.selectedFile); // Llama al servicio para subir el archivo
+                    alert('Archivo subido exitosamente');
+                }
+            } catch (error) {
+                console.error('Error al subir el archivo:', error);
+            }
+        },
+
         // Obtiene las transacciones del usuario por fecha
         async fetchTransactions() {
             try {

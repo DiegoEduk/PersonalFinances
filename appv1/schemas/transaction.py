@@ -30,4 +30,4 @@ class TransactionResponse(TransactionBase):
     category_name: str
 
 class TransactionFilesResponse(BaseModel):
-    url_file: int
+    file_url: int

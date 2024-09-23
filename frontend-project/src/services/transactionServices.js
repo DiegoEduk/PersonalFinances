@@ -78,19 +78,22 @@ export const getTransactionsByUserAndDate = async (userId, startDate, endDate) =
 
 // Función para subir un archivo relacionado con una transacción
 export const uploadTransactionFile = async (transactionId, file) => {
-  try {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const response = await api.post(`/transaction/upload-file/?transactions_id=${transactionId}`, formData, {
-      'Content-Type': 'multipart/form-data',
-    });
-    return response;
-  } catch (error) {
-    if (error.response) {
-      throw error.response; // Devuelve el error de la API
-    } else {
-      throw new Error('Error de red o de servidor');
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+  
+      const response = await api.post(`/transaction/upload-file/?transactions_id=${transactionId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data', // Solo es necesario este header
+        }
+      });
+      return response;
+    } catch (error) {
+      if (error.response) {
+        throw error.response; // Devuelve el error de la API
+      } else {
+        throw new Error('Error de red o de servidor');
+      }
     }
-  }
-};
+  };
+  
