@@ -37,15 +37,20 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import { getAllActiveCategories } from '@/services/categoryService';
 
 export default {
   name: 'CategorySelect',
-  setup(props, { emit }) { // Usamos `emit` para emitir eventos
-    // Define referencias reactivas que almacenan el estado del componente
+  props: {
+    selectedCategoryId: {
+      type: Number,
+      default: null
+    }
+  },
+  setup(props, { emit }) {
     const categories = ref([]); // Almacena las categorías
-    const selectedCategory = ref(null); // Categoría seleccionada
+    const selectedCategory = ref(props.selectedCategoryId); // Inicializa con la categoría seleccionada
     const searchQuery = ref(''); // Query de búsqueda
     const dropdownOpen = ref(false); // Estado del dropdown
     const filteredCategories = ref([]); // Categorías filtradas
@@ -74,7 +79,7 @@ export default {
       selectedCategory.value = category.category_id;
       dropdownOpen.value = false; // Cierra el dropdown
       // Emitimos el evento `category-selected` al padre, pasando la categoría seleccionada
-      emit('category-selected', category.category_id); 
+      emit('category-selected', category.category_id);
     };
 
     // Función para alternar el dropdown
@@ -98,6 +103,11 @@ export default {
     // Quitar el event listener al desmontar el componente
     onBeforeUnmount(() => {
       document.removeEventListener('click', closeDropdownOnClickOutside);
+    });
+
+    // Sincronizar `selectedCategory` con `selectedCategoryId` prop cuando cambie
+    watch(() => props.selectedCategoryId, (newVal) => {
+      selectedCategory.value = newVal;
     });
 
     // Devuelve el nombre de la categoría seleccionada

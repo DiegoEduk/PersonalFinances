@@ -19,7 +19,6 @@ class TransactionCreate(TransactionBase):
     pass
 
 class TransactionUpdate(BaseModel):
-    user_id: Optional[str] = None
     category_id: Optional[int] = None
     amount: Optional[float] = None
     t_description: Optional[str] = None
@@ -29,3 +28,6 @@ class TransactionUpdate(BaseModel):
 class TransactionResponse(TransactionBase):
     transactions_id: int
     category_name: str
+
+class TransactionFilesResponse(BaseModel):
+    url_file: int

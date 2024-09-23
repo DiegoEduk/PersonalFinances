@@ -1,32 +1,46 @@
 import api from './api';
 
-// Función para crear una nueva transacción
-export const createTransaction = async (transactionData) => {
-  try {
-    const response = await api.post('/transaction/create', transactionData);
-    return response;
-  } catch (error) {
-    if (error.response) {
-      throw error.response; // Devuelve el error de la API
-    } else {
-      throw new Error('Error de red o de servidor');
+// Función para crear una nueva transacción con parámetros separados
+export const createTransaction = async (userId, categoryId, amount, description, type, date) => {
+    try {
+      const response = await api.post('/transaction/create', {
+        user_id: userId,
+        category_id: categoryId,
+        amount: amount,
+        t_description: description,
+        t_type: type,
+        t_date: date
+      });
+      return response;
+    } catch (error) {
+      if (error.response) {
+        throw error.response; // Devuelve el error de la API
+      } else {
+        throw new Error('Error de red o de servidor');
+      }
     }
-  }
-};
+  };
 
 // Función para actualizar una transacción por ID
-export const updateTransaction = async (transactionId, transactionData) => {
-  try {
-    const response = await api.put(`/transaction/update/${transactionId}`, transactionData);
-    return response;
-  } catch (error) {
-    if (error.response) {
-      throw error.response; // Devuelve el error de la API
-    } else {
-      throw new Error('Error de red o de servidor');
+export const updateTransaction = async (transactionId, categoryId, amount, description, type, date) => {
+    try {
+      const response = await api.put(`/transaction/update/${transactionId}`, {
+        category_id: categoryId,
+        amount: amount,
+        t_description: description,
+        t_type: type,
+        t_date: date
+      });
+      return response;
+    } catch (error) {
+      if (error.response) {
+        throw error.response; // Devuelve el error de la API
+      } else {
+        throw new Error('Error de red o de servidor');
+      }
     }
-  }
-};
+  };
+  
 
 // Función para eliminar una transacción por ID
 export const deleteTransaction = async (transactionId) => {

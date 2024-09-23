@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 from typing import Dict, List
 from appv1.crud.permissions import get_permissions
-from appv1.schemas.transaction import TransactionCreate, TransactionTypeEnum, TransactionUpdate, TransactionResponse
-from appv1.crud.transaction import create_transaction, insert_file_to_db, sumar_numeros_procedimiento, update_transaction, delete_transaction, get_transactions_by_user_and_date_range
+from appv1.schemas.transaction import TransactionCreate, TransactionFilesResponse, TransactionTypeEnum, TransactionUpdate, TransactionResponse
+from appv1.crud.transaction import create_transaction, get_transaction_files, insert_file_to_db, sumar_numeros_procedimiento, update_transaction, delete_transaction, get_transactions_by_user_and_date_range
 from appv1.schemas.user import UserResponse
 from appv1.routers.login import get_current_user
 from core.utils import save_file
@@ -98,8 +98,26 @@ async def upload_file(
     success = insert_file_to_db(db, transactions_id, file_location)
     
     if success:
-        return {"mensaje": "archivo almacenado con éxito"}
+        return {
+            "mensaje": "archivo almacenado con éxito",
+            "url_file": file_location
+            }
 
+
+# Ruta para obtener los archivos de una transaccion
+@router.get("/get-transactions-files/{transaction_id}", response_model=List[TransactionFilesResponse])
+async def read_transactions_files(
+    transaction_id: int,
+    db: Session = Depends(get_db),
+    current_user: UserResponse = Depends(get_current_user)
+):
+    permisos = get_permissions(db, current_user.user_role, MODULE)
+    if not permisos.p_select:
+        raise HTTPException(status_code=401, detail="Usuario no autorizado")
+    
+    transactions = get_transaction_files(db, transaction_id)
+    if transactions:
+        return transactions
 
 # Ruta para sumar dos números usando el procedimiento almacenado
 @router.get("/sumar")

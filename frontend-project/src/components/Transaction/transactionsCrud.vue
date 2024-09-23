@@ -1,10 +1,29 @@
 <template>
     <div class="container-fluid">
         <!-- Título de la página -->
-        <h1 class="h3 mb-2 text-gray-800">Transacciones del Mes</h1>
+        <h1 class="h3 mb-2 text-gray-800">Transacciones</h1>
 
-        <!-- Botón para registrar una nueva transacción -->
-        <button @click="openCreateModal" class="btn btn-success mb-4">Registrar Nueva Transacción</button>
+        <div class="row mb-3">
+            <div class="col-3">
+                <!-- Botón para registrar una nueva transacción -->
+                <button @click="openCreateModal" class="btn btn-success">Registrar Transacción</button>
+            </div>
+            <div class="col-3">
+                <!-- Selección de rango de fechas -->
+                <div class="mr-3">
+                    <input type="date" id="startDate" v-model="startDate" class="form-control">
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="mr-3">
+                    <input type="date" id="endDate" v-model="endDate" class="form-control">
+                </div>
+            </div>
+            <div class="col-3">
+                <!-- Botón para buscar transacciones en el rango seleccionado -->
+                <button @click="fetchTransactions" class="btn btn-primary mr-3">Buscar</button>
+            </div>
+        </div>
 
         <!-- Tabla de Transacciones -->
         <div class="card shadow mb-4">
@@ -19,7 +38,7 @@
                                 <th>Descripción</th>
                                 <th>Monto</th>
                                 <th>Tipo</th>
-                                <th>Categoria</th>
+                                <th>Categoría</th>
                                 <th>Fecha</th>
                                 <th></th>
                             </tr>
@@ -44,39 +63,29 @@
                         </tbody>
                     </table>
                 </div>
-
-                <!-- Controles de paginación -->
-                <div class="pagination-controls">
-                    <button class="btn btn-primary m-3" @click="prevPage" :disabled="currentPage === 1">Anterior</button>
-                    <span>Página {{ currentPage }} de {{ totalPages }}</span>
-                    <button class="btn btn-primary m-3" @click="nextPage" :disabled="currentPage === totalPages">Siguiente</button>
-                </div>
             </div>
         </div>
 
-        <!-- Modal para crear/editar transacción -->
+        <!-- Modal para crear / editar transacción -->
         <div class="modal fade" id="transactionModal" tabindex="-1" aria-labelledby="transactionModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
+            <div class="modal-dialog modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="transactionModalLabel">{{ isEditMode ? 'Editar Transacción' : 'Registrar Nueva Transacción' }}</h5>
+                        <h5 class="modal-title" id="transactionModalLabel">{{ isEditMode ? 'Editar Transacción' : 'Registrar Transacción' }}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <form @submit.prevent="isEditMode ? updateTransaction() : createTransaction()">
-                            <!-- Campo para la descripción -->
+                        <form @submit.prevent="isEditMode ? updateTransactionMethod() : registerTransaction()">
                             <div class="mb-3">
                                 <label for="description" class="form-label">Descripción</label>
-                                <input type="text" v-model="currentTransaction.t_description" class="form-control" required>
+                                <input type="text" id="description" class="form-control" v-model="currentTransaction.t_description" required>
                             </div>
-                            <!-- Campo para el monto -->
                             <div class="mb-3">
                                 <label for="amount" class="form-label">Monto</label>
-                                <input type="number" v-model="currentTransaction.amount" class="form-control" required>
+                                <input type="number" id="amount" class="form-control" v-model="currentTransaction.amount" required>
                             </div>
-                            <!-- Selección del tipo de transacción -->
                             <div class="mb-3">
                                 <label for="type" class="form-label">Tipo</label>
                                 <select v-model="currentTransaction.t_type" class="form-control" required>
@@ -84,15 +93,14 @@
                                     <option value="expenses">Gasto</option>
                                 </select>
                             </div>
-                            <!-- Selección de la categoría con el componente CategorySelect -->
                             <div class="mb-3">
                                 <label for="category" class="form-label">Categoría</label>
-                                <CategorySelect @category-selected="handleCategorySelected" />
+                                <!-- Pasar la categoría seleccionada actual al componente CategorySelect -->
+                                <CategorySelect :selected-category-id="currentTransaction.category_id" @category-selected="updateTransactionCategory" />
                             </div>
-                            <!-- Campo para la fecha -->
                             <div class="mb-3">
                                 <label for="date" class="form-label">Fecha</label>
-                                <input type="date" v-model="currentTransaction.t_date" class="form-control" required>
+                                <input type="date" id="date" class="form-control" v-model="currentTransaction.t_date" required>
                             </div>
                             <button type="submit" class="btn btn-primary">{{ isEditMode ? 'Guardar Cambios' : 'Registrar Transacción' }}</button>
                         </form>
@@ -104,148 +112,137 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+// Importar los servicios del archivo transactionServices
 import { getTransactionsByUserAndDate, createTransaction, updateTransaction, deleteTransaction } from '@/services/transactionServices';
-import { useAuthStore } from '@/store/'; // Store para acceder al user_id
-import CategorySelect from '@/components/Category/CategorySelect.vue'; // Importar el componente hijo para seleccionar categoría
+import CategorySelect from '../Category/CategorySelect.vue';
+import { useAuthStore } from '@/store/'; // Store de autenticación para obtener el user_id
 
 export default {
-    components: {
-        CategorySelect, // Registramos el componente hijo
+    data() {
+        return {
+            transactions: [],  // Lista de transacciones
+            currentTransaction: {},  // Transacción actual para crear o editar
+            isEditMode: false,  // Indica si estamos en modo edición o creación
+            startDate: '',  // Fecha de inicio para la búsqueda personalizada
+            endDate: '',  // Fecha de fin para la búsqueda personalizada
+        };
     },
-    setup() {
-        const authStore = useAuthStore(); // Obtener el store de autenticación para acceder al user_id
-
-        const transactions = ref([]); // Lista de transacciones
-        const currentTransaction = ref({ t_description: '', amount: 0, t_type: 'expenses', t_date: '', category_id: null }); // Transacción actual
-        const isEditMode = ref(false); // Modo creación o edición
-        const currentPage = ref(1); // Página actual para la paginación
-        const totalPages = ref(0); // Total de páginas
-        const userId = authStore.user?.user_id || ''; // Obtener el user_id del store de autenticación
-        const error = ref(null); // Mensaje de error
-
-        // Función para obtener las transacciones del mes actual
-        const fetchTransactions = async () => {
+    components: {
+        CategorySelect, // Registra el componente CategorySelect
+    },
+    methods: {
+        // Obtiene las transacciones del usuario por fecha
+        async fetchTransactions() {
             try {
-                const startDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
-                const endDate = new Date().toISOString().split('T')[0];
+                const authStore = useAuthStore();  // Obtener el user_id del store
+                const userId = authStore.user?.user_id || '';
 
-                const response = await getTransactionsByUserAndDate(userId, startDate, endDate);
+                // Si no se han seleccionado fechas, usamos el mes actual
+                const currentDate = new Date();
+                const defaultStartDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString().split('T')[0];
+                const defaultEndDate = currentDate.toISOString().split('T')[0];
 
-                transactions.value = response.data || []; // Asignar las transacciones directamente
-            } catch (err) {
-                error.value = 'Error al cargar las transacciones.';
+                const start = this.startDate || defaultStartDate;
+                const end = this.endDate || defaultEndDate;
+
+                const response = await getTransactionsByUserAndDate(userId, start, end);
+                this.transactions = response.data || []; // Asigna las transacciones obtenidas
+                
+            } catch (error) {
+                console.error('Error al cargar las transacciones:', error);
             }
-        };
+        },
 
-        // Función para crear una nueva transacción
-        const createTransaction = async () => {
+        // Registra una nueva transacción llamando a la API
+        async registerTransaction() {
             try {
-                await createTransaction(currentTransaction.value);
-                fetchTransactions(); // Recarga las transacciones
+                const authStore = useAuthStore();  // Obtener el user_id del store
+                const userId = authStore.user?.user_id || '';
+
+                await createTransaction(
+                    userId,
+                    this.currentTransaction.category_id,
+                    this.currentTransaction.amount,
+                    this.currentTransaction.t_description,
+                    this.currentTransaction.t_type,
+                    this.currentTransaction.t_date
+                );
+                alert('Transacción registrada exitosamente');
+                this.fetchTransactions(); // Refresca la lista de transacciones después de registrar
                 $('#transactionModal').modal('hide'); // Cierra el modal
-            } catch (err) {
-                error.value = 'Error al crear la transacción.';
+            } catch (error) {
+                console.error('Error al registrar la transacción:', error);
             }
-        };
+        },
 
-        // Función para actualizar una transacción existente
-        const updateTransaction = async () => {
+        // Actualiza una transacción llamando a la API
+        async updateTransactionMethod() {
             try {
-                await updateTransaction(currentTransaction.value.transaction_id, currentTransaction.value);
-                console.log(currentTransaction.value.transaction_id);
-                console.log(currentTransaction.value);
-                fetchTransactions(); // Recarga las transacciones
+                await updateTransaction(
+                    this.currentTransaction.transactions_id,
+                    this.currentTransaction.category_id,
+                    this.currentTransaction.amount,
+                    this.currentTransaction.t_description,
+                    this.currentTransaction.t_type,
+                    this.currentTransaction.t_date
+                );
+                alert('Transacción actualizada exitosamente');
+                this.fetchTransactions(); // Refresca la lista de transacciones después de actualizar
                 $('#transactionModal').modal('hide'); // Cierra el modal
-            } catch (err) {
-                error.value = 'Error al actualizar la transacción.';
+            } catch (error) {
+                console.error('Error al actualizar la transacción:', error);
             }
-        };
+        },
 
-        // Función para eliminar una transacción
-        const deleteTransactionMethod = async (transactionId) => {
+        // Elimina una transacción
+        async deleteTransactionMethod(transactionId) {
             if (confirm('¿Estás seguro de que deseas eliminar esta transacción?')) {
                 try {
                     await deleteTransaction(transactionId);
-                    fetchTransactions(); // Recarga las transacciones
-                } catch (err) {
-                    error.value = 'Error al eliminar la transacción.';
+                    alert('Transacción eliminada exitosamente');
+                    this.fetchTransactions(); // Refresca la lista de transacciones después de eliminar
+                } catch (error) {
+                    console.error('Error al eliminar la transacción:', error);
                 }
             }
-        };
+        },
 
         // Abre el modal para registrar una nueva transacción
-        const openCreateModal = () => {
-            isEditMode.value = false;
-            currentTransaction.value = { t_description: '', amount: 0, t_type: 'expenses', t_date: '', category_id: null }; // Inicializa una nueva transacción
+        openCreateModal() {
+            this.currentTransaction = { t_description: '', amount: 0, t_type: 'expenses', t_date: '', category_id: null }; // Inicializa la transacción vacía
+            this.isEditMode = false; // Cambia el modo a creación
             $('#transactionModal').modal('show'); // Abre el modal
-        };
+        },
 
-        // Abre el modal para editar una transacción existente
-        const openEditModal = (transaction) => {
-            isEditMode.value = true;
-            currentTransaction.value = { ...transaction }; // Clona la transacción seleccionada
+        // Abre el modal para editar una transacción
+        openEditModal(transaction) {
+            this.currentTransaction = { ...transaction }; // Clona la transacción seleccionada
+            this.isEditMode = true; // Cambia el modo a edición
             $('#transactionModal').modal('show'); // Abre el modal
-        };
+        },
 
-        // Manejador para seleccionar la categoría
-        const handleCategorySelected = (categoryId) => {
-            currentTransaction.value.category_id = categoryId; // Asigna la categoría seleccionada
-        };
+        // Actualiza la categoría seleccionada en `currentTransaction`
+        updateTransactionCategory(selectedCategory) {
+            this.currentTransaction.category_id = selectedCategory;
+        },
 
-        // Función para paginación
-        const nextPage = () => {
-            if (currentPage.value < totalPages.value) {
-                currentPage.value++;
-                fetchTransactions(); // Cargar la siguiente página
-            }
-        };
-
-        const prevPage = () => {
-            if (currentPage.value > 1) {
-                currentPage.value--;
-                fetchTransactions(); // Cargar la página anterior
-            }
-        };
-
-        // Formatear fecha para mostrarla de manera legible
-        const formatDate = (dateString) => {
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        // Formatea una fecha para mostrarla de manera legible
+        formatDate(dateString) {
+            const options = {
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric'
+            };
             return new Date(dateString).toLocaleDateString('es-ES', options);
-        };
+        },
 
-        // Formatear monto como moneda
-        const formatCurrency = (amount) => {
+        // Formatea el monto como moneda
+        formatCurrency(amount) {
             return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'COP' }).format(amount);
-        };
-
-        onMounted(() => {
-            fetchTransactions(); // Cargar las transacciones del mes actual al montar el componente
-        });
-
-        return {
-            transactions,
-            currentTransaction,
-            isEditMode,
-            fetchTransactions,
-            createTransaction,
-            updateTransaction,
-            deleteTransactionMethod,
-            openCreateModal,
-            openEditModal,
-            handleCategorySelected,
-            nextPage,
-            prevPage,
-            currentPage,
-            totalPages,
-            formatDate,
-            formatCurrency,
-            error
-        };
-    }
+        },
+    },
+    mounted() {
+        this.fetchTransactions(); // Llama al método para obtener las transacciones al cargar el componente
+    },
 };
 </script>
-
-<style scoped>
-/* Estilos personalizados */
-</style>

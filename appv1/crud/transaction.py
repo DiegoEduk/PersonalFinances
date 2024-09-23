@@ -41,9 +41,6 @@ def update_transaction(db: Session, transaction_id: int, updates: TransactionUpd
         update_fields = []
 
         # Verifica qué campos se deben actualizar y construye la consulta y parámetros
-        if updates.user_id is not None:
-            update_fields.append("user_id = :user_id")
-            params["user_id"] = updates.user_id
         if updates.category_id is not None:
             update_fields.append("category_id = :category_id")
             params["category_id"] = updates.category_id
@@ -182,6 +179,25 @@ def get_transactions_by_date_range(db: Session, start_date: str, end_date: str):
     except SQLAlchemyError as e:
         print(f"Error al obtener transacciones: {e}")
         raise HTTPException(status_code=500, detail="Error al obtener transacciones.")
+
+# Obtiene las transacciones en un rango de fechas
+def get_transaction_files(db: Session, t_id: int):
+    try:
+        sql_query = text(
+            "SELECT * FROM transactions_files "
+            "WHERE transactions_id = :transactions_id"
+        )
+        params = {
+            "transactions_id": t_id
+        }
+        result = db.execute(sql_query, params).mappings().all()
+        if not result:
+            raise HTTPException(status_code=404, detail="No se encontraron archivos de la transacción")
+        return result
+    
+    except SQLAlchemyError as e:
+        print(f"Error al obtener archivos de transacciones: {e}")
+        raise HTTPException(status_code=500, detail="Error al obtener archivos de transacciones.")
 
 # ejemplo llamar a un procedimiento 
 def sumar_numeros_procedimiento(db: Session, num1: int, num2: int):
