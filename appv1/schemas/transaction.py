@@ -28,3 +28,4 @@ class TransactionUpdate(BaseModel):
 
 class TransactionResponse(TransactionBase):
     transactions_id: int
+    category_name: str

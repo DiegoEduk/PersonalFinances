@@ -24,7 +24,7 @@
             </li>
 
             <li class="nav-item" v-if="permission.p_select && permission.module_name == 'transacciones' ">
-                <button class="btn btn-link text-white" @click="selectComponent('BlankPage02')">
+                <button class="btn btn-link text-white" @click="selectComponent('TransactionCrud')">
                     <i class="fa-solid fa-money-check-dollar">&nbsp;</i>
                     <span class="text-capitalize">{{ permission.module_name }}</span>
                 </button>

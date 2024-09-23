@@ -98,3 +98,12 @@ VALUES('Arriendo','Pago por servicios de arriendo');
 INSERT INTO users (user_id, full_name, mail, passhash, user_role, user_status, created_at, updated_at) VALUES
 ('rVAzYfbbeGLVmAE9lyY9i4U02YTxPW', 'Christian Arias ', 'arias@gmail.com', '$2b$12$M6lpSVYUIbtnfuyx7RS3ZO7uzG1QvkIvnmuQUXkHF42dsVuKldYcu', 'SuperAdmin', 1, '2024-08-13 21:28:41', '2024-08-13 16:28:41'),
 ('XmDFJkhab26C1V0fmBekhodnmhcGcQ', 'Juanito Alimaña', 'juanito@3xample.com', '$2b$12$vHJ5ydFXJEgf/W25o0M.de7U9i1oWaYisKkJt92g/wYiJ4Qu7JQfq', 'Cliente', 1, '2024-08-20 02:45:22', '2024-08-19 21:45:22');
+
+DELIMITER //
+
+CREATE PROCEDURE sumar_numeros(IN num1 INT, IN num2 INT, OUT resultado INT)
+BEGIN
+    SET resultado = num1 + num2;
+END //
+
+DELIMITER ;

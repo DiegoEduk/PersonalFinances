@@ -108,13 +108,17 @@ def delete_transaction(db: Session, transaction_id: int):
         raise HTTPException(status_code=500, detail="Error al eliminar transacción.")
 
 # Obtiene las transacciones de un usuario en un rango de fechas
-def get_transactions_by_user_and_date_range(db: Session, user_id: str, type: str,start_date: str, end_date: str):
+def get_transactions_by_user_and_date_range(db: Session, user_id: str, start_date: str, end_date: str):
     try:
         sql_query = text(
-            "SELECT * FROM transactions "
-            "WHERE user_id = :user_id "
-            "AND t_type = :type "
-            "AND t_date BETWEEN :start_date AND :end_date"
+            "SELECT transactions.transactions_id AS transactions_id, transactions.user_id AS user_id, transactions.category_id AS category_id, "
+            "transactions.amount AS amount, transactions.t_description AS t_description, "
+            "transactions.t_type AS t_type, transactions.t_date AS t_date, category.category_name AS category_name "
+            "FROM transactions "
+            "INNER JOIN category ON transactions.category_id = category.category_id "
+            "WHERE transactions.user_id = :user_id "
+            "AND transactions.t_date BETWEEN :start_date AND :end_date "
+            "ORDER BY transactions.t_date DESC"
         )
         params = {
             "user_id": user_id,
@@ -155,16 +159,16 @@ def insert_file_to_db(db: Session, transactions_id: int, file_url: str):
         print(f"Error al insertar archivo: {e}")
         raise HTTPException(status_code=500, detail="Error al insertar archivo.")
 
-
-
-
-
 # Obtiene las transacciones en un rango de fechas
 def get_transactions_by_date_range(db: Session, start_date: str, end_date: str):
     try:
         sql_query = text(
-            "SELECT * FROM transactions "
-            "WHERE t_date BETWEEN :start_date AND :end_date"
+            "SELECT transactions.transactions_id AS transactions_id, transactions.category_id AS category_id, "
+            "transactions.amount AS amount, transactions.t_description AS t_description, "
+            "transactions.t_type AS t_type, transactions.t_date AS t_date, category.category_name AS category_name "
+            "FROM transactions "
+            "INNER JOIN category ON transactions.category_id = category.category_id "
+            "WHERE transactions.t_date BETWEEN :start_date AND :end_date"
         )
         params = {
             "start_date": start_date,
@@ -178,3 +182,32 @@ def get_transactions_by_date_range(db: Session, start_date: str, end_date: str):
     except SQLAlchemyError as e:
         print(f"Error al obtener transacciones: {e}")
         raise HTTPException(status_code=500, detail="Error al obtener transacciones.")
+
+# ejemplo llamar a un procedimiento 
+def sumar_numeros_procedimiento(db: Session, num1: int, num2: int):
+    try:
+        # Definir la consulta para llamar al procedimiento almacenado
+        sql_query = text("CALL sumar_numeros(:num1, :num2, @resultado)")
+
+        # Parametros de entrada
+        params = {
+            "num1": num1,
+            "num2": num2
+        }
+
+        # Ejecutar el procedimiento almacenado
+        db.execute(sql_query, params)
+
+        # Obtener el valor del parámetro de salida
+        result_query = db.execute(text("SELECT @resultado AS resultado")).mappings().one()
+
+        resultado = result_query["resultado"]
+
+        if resultado is None:
+            raise HTTPException(status_code=404, detail="No se pudo calcular el resultado.")
+
+        return {"resultado": resultado}
+
+    except SQLAlchemyError as e:
+        print(f"Error al ejecutar el procedimiento sumar_numeros: {e}")
+        raise HTTPException(status_code=500, detail="Error al ejecutar el procedimiento.")

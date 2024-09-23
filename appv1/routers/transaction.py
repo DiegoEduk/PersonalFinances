@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
-from typing import List
+from typing import Dict, List
 from appv1.crud.permissions import get_permissions
 from appv1.schemas.transaction import TransactionCreate, TransactionTypeEnum, TransactionUpdate, TransactionResponse
-from appv1.crud.transaction import create_transaction, insert_file_to_db, update_transaction, delete_transaction, get_transactions_by_user_and_date_range
+from appv1.crud.transaction import create_transaction, insert_file_to_db, sumar_numeros_procedimiento, update_transaction, delete_transaction, get_transactions_by_user_and_date_range
 from appv1.schemas.user import UserResponse
 from appv1.routers.login import get_current_user
 from core.utils import save_file
@@ -66,7 +66,6 @@ async def delete_transaction_route(
 @router.get("/get-by-user-and-date", response_model=List[TransactionResponse])
 async def get_transactions_by_user_and_date_range_route(
     user_id: str,
-    t_type: TransactionTypeEnum,
     start_date: str,
     end_date: str,
     db: Session = Depends(get_db),
@@ -76,7 +75,7 @@ async def get_transactions_by_user_and_date_range_route(
     if not permisos.p_select:
         raise HTTPException(status_code=401, detail="Usuario no autorizado")
     
-    transactions = get_transactions_by_user_and_date_range(db, user_id, t_type, start_date, end_date)
+    transactions = get_transactions_by_user_and_date_range(db, user_id, start_date, end_date)
     if transactions:
         return transactions
     raise HTTPException(status_code=404, detail="No se encontraron transacciones en el rango de fechas especificado.")
@@ -100,3 +99,18 @@ async def upload_file(
     
     if success:
         return {"mensaje": "archivo almacenado con éxito"}
+
+
+# Ruta para sumar dos números usando el procedimiento almacenado
+@router.get("/sumar")
+async def sumar_numeros_route(
+    num1: int,
+    num2: int,
+    db: Session = Depends(get_db)
+):
+    # Llamar a la función que ejecuta el procedimiento almacenado
+    resultado = sumar_numeros_procedimiento(db, num1, num2)
+    
+    if resultado:
+        return resultado
+    raise HTTPException(status_code=404, detail="No se pudo obtener el resultado de la suma.")

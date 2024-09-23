@@ -23,8 +23,7 @@ import BlankPage from '../components/Dashboard/BlankPage.vue';
 import FooterCom from '../components/Dashboard/FooterCom.vue';
 import Sidebar from '../components/Dashboard/Sidebar.vue';
 import Topbar from '../components/Dashboard/Topbar.vue';
-import BlankPage01 from '../components/Dashboard/BlankPage01.vue';
-import BlankPage02 from '../components/Dashboard/BlankPage02.vue';
+import TransactionCrud from '../components/Transaction/transactionsCrud.vue';
 import ListUsers from '../components/Users/ListUsers.vue';
 import CategoryCrud from '../components/Category/CategoryCrud.vue';
 
@@ -36,14 +35,13 @@ export default {
         Sidebar: markRaw(Sidebar),
         Topbar: markRaw(Topbar),
         ListUsers: markRaw(ListUsers),
-        BlankPage02: markRaw(BlankPage02),
-        BlankPage02: markRaw(BlankPage02),
+        TransactionCrud: markRaw(TransactionCrud),
         CategoryCrud: markRaw(CategoryCrud),
     },
     data() {
         return {
             // Define el componente que se mostrará inicialmente
-            currentComponent: BlankPage
+            currentComponent: TransactionCrud
         };
     },
     methods: {
@@ -52,7 +50,7 @@ export default {
       const componentMap = {
         BlankPage: BlankPage,
         ListUsers: ListUsers,
-        BlankPage02: BlankPage02,
+        TransactionCrud: TransactionCrud,
         CategoryCrud: CategoryCrud,
         // otros componentes
       };
