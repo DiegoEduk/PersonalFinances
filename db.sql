@@ -107,3 +107,23 @@ BEGIN
 END //
 
 DELIMITER ;
+
+
+
+
+CREATE TABLE usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tipo_doc VARCHAR(20) NOT NULL,
+    num_doc VARCHAR(15) NOT NULL,
+    nombres VARCHAR(50) NOT NULL,
+    apellidos VARCHAR(120),
+    correo VARCHAR(100) UNIQUE NOT NULL,
+    telefono VARCHAR(14)
+);
+
+CREATE TABLE comprobantes_pago (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    url_comprobante_pago VARCHAR(140) NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+);

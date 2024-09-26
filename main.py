@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from appv1.routers import category, transaction, users
 from db.database import test_db_connection
-from appv1.routers import login, users, roles
+from appv1.routers import login, users, roles, prueba
 
 app = FastAPI()
 # Montar la carpeta estática que permitira almacenar 
@@ -16,6 +16,7 @@ app.include_router(login.router, prefix="/access", tags=["access"])
 app.include_router(roles.router, prefix="/role", tags=["role"])
 app.include_router(category.router, prefix="/category", tags=["category"])
 app.include_router(transaction.router, prefix="/transaction", tags=["transaction"])
+app.include_router(prueba.router, prefix="/prueba", tags=["prueba"])
 
 # Configuración de CORS para permitir todas las solicitudes desde cualquier origen
 app.add_middleware(

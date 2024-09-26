@@ -1,6 +1,6 @@
 <template>
   <div class="form-container" @click="toggleDropdown">
-    <label for="categorySelect">Seleccione una categoría</label>
+    <!-- <label for="categorySelect">Seleccione una categoría</label> -->
 
     <!-- Contenedor que actúa como select -->
     <div class="custom-select">
@@ -12,7 +12,7 @@
         <input 
           type="text" 
           class="search-input" 
-          placeholder="Buscar categoría..." 
+          placeholder="Buscar ..." 
           v-model="searchQuery" 
           @input="filterCategories"
         />

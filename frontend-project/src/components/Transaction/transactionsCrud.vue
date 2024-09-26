@@ -191,7 +191,7 @@ export default {
             try {
                 const authStore = useAuthStore();  // Obtener el user_id del store
                 const userId = authStore.user?.user_id || '';
-
+                
                 await createTransaction(
                     userId,
                     this.currentTransaction.category_id,
@@ -200,6 +200,7 @@ export default {
                     this.currentTransaction.t_type,
                     this.currentTransaction.t_date
                 );
+
                 alert('Transacción registrada exitosamente');
                 this.fetchTransactions(); // Refresca la lista de transacciones después de registrar
                 $('#transactionModal').modal('hide'); // Cierra el modal
